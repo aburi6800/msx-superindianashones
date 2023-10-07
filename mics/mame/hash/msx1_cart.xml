@@ -2,9 +2,9 @@
 <!DOCTYPE softwarelist SYSTEM "softwarelist.dtd">
 <softwarelist name="msx1_cart" description="MSX1 cartridges">
 	<software name="example">
-		<description>crunner</description>
+		<description>example</description>
 		<year>2022</year>
-		<publisher>crunner</publisher>
+		<publisher>example</publisher>
 		<info name="serial" value="01" />
 		<info name="alt_title" value="example" />
 		<part name="cart" interface="msx_cart">

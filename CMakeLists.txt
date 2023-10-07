@@ -9,6 +9,7 @@ enable_language(ASM)
 #set(CMAKE_VERBOSE_MAKEFILE 1)
 
 include(./cmake/macros.cmake)
+#include(./cmake/z88dk.cmake)
 
 add_source_files(
     ./src/c/example.c

@@ -8,7 +8,7 @@
                 "${env:Z88DK_HOME}/include/**/*"
             ],
             "defines": [],
-            "compilerPath": "${env:Z88DK_HOME}/bin/zcc",
+            "compilerPath": "/home/hitoshi/Development/git/z88dk/z88dk/bin/zcc",
             "cStandard": "c11",
             "intelliSenseMode": "gcc-x86"
         }
