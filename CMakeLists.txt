@@ -9,13 +9,10 @@ enable_language(ASM)
 #set(CMAKE_VERBOSE_MAKEFILE 1)
 
 include(./cmake/macros.cmake)
-#include(./cmake/z88dk.cmake)
 
 add_source_files(
     ./src/c/example.c
-    ./src/asm/psgdriver.asm
-    ./src/asm/define_graphic.asm
-    ./src/asm/define_music.asm
+    ./src/asm/define_graphic_chars.asm
 )
 
 add_compile_flags(C
