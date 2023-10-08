@@ -4,5 +4,5 @@ dist/
 src/asm/*.lis
 src/c/*.lis
 src/c/*.sym
-mics/mame/roms/msx1_cart/*
+mics/mame/roms/msx1_cart/*.zip
 .ticks_history.txt
