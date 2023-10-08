@@ -32,7 +32,7 @@
             {
               "path": "src/c/example.c.lis",
               "mapFile": "dist/example.map",
-              "srcDirs": [""]	// Sources mode
+              "srcDirs": ["src/c/"]	// Sources mode
             }
         ],
         "rootFolder": "${workspaceFolder}",
