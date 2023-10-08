@@ -254,7 +254,6 @@ __asm
 
     POP DE                      // DE <- 表示データアドレス
 
-PRTBCD:
     // 表示する桁数分、スペースで埋める
     PUSH BC
     PUSH DE
@@ -264,10 +263,10 @@ PRTBCD:
     ADD A,A                     // 表示文字数を算出 (表示桁*2)
     LD B,A                      // B(繰り返し数) = 表示文字数
 
-PRTBCD_L2:
+write_bcd_L2:
     LD (HL),$20                 // 表示桁分、スペースを埋める
     INC HL
-    DJNZ PRTBCD_L2
+    DJNZ write_bcd_L2
 
     DEC HL
     LD (HL),$30                 // 末尾はゼロ固定表示
@@ -279,42 +278,40 @@ PRTBCD_L2:
     // 数値描画
     LD C,0                      // ゼロ表示フラグ初期化
 
-PRTBCD_L3:
+write_bcd_L3:
     LD A,(DE)                   // A <- DE(表示データ)
-	CALL PUTBCD 			    // データを表示
-
+	CALL put_bcd			    // データを表示
 	INC DE					    // DE=DE+1(＝表示データの次のアドレスが設定される)
     INC HL					    // HL=HL+1(＝表示位置を1つ右に移動)
-
-    DJNZ PRTBCD_L3              // B=B-1、ゼロでなければ繰り返す
+    DJNZ write_bcd_L3           // B=B-1、ゼロでなければ繰り返す
 
 	RET
 
     // 1バイト(2桁)のBCD値描画
-PUTBCD:
+put_bcd:
 	// 上1桁の処理
     PUSH AF
     SRL A					    // Aレジスタの値を4回右シフトして、上位4ビットを取り出す
     SRL A
     SRL A
     SRL A
-    CALL PUTBCD_L1			    // オフスクリーンバッファにデータ設定
+    CALL put_bcd_L1			    // オフスクリーンバッファにデータ設定
 
 	// 下1桁の処理
     POP AF
     INC HL					    // HLレジスタの値を1加算(＝データ表示位置を1つ右に移動)
 
-PUTBCD_L1:
+put_bcd_L1:
 	// 仮想画面にデータ設定
 	AND $0F				        // 上位4ビットをゼロにする(=下位4ビットの値だけ取り出す)
     OR A
-    JR NZ,PUTBCD_L2             // 値がゼロ以外の場合はL2へ
+    JR NZ,put_bcd_L2            // 値がゼロ以外の場合はL2へ
 
     INC C                       // 値がゼロの時はゼロ表示フラグを判定
     DEC C
     RET Z                       // ゼロ表示フラグがOFFの時はゼロ表示せず抜ける
 
-PUTBCD_L2:
+put_bcd_L2:
     INC C                       // 以降のゼロは表示させるので、ゼロ表示フラグを+1
     ADD A,$30				    // 値にキャラクタコード&H30('0')を加える
     LD (HL),A                   // 仮想画面にデータを設定
@@ -421,6 +418,29 @@ void init_screen()
 
 
 /**
+ * タイトル画面
+ */
+void draw_title()
+{
+    // ゲーム初期化
+    init_screen();
+
+    char title1[] = {161, 162, 163, 164, 165, 166, 167, 0};
+    char title2[] = {193, 194, 195, 196, 197, 198, 199, 0};
+    char title3[] = {168, 169, 170, 171, 172, 173, 174, 0};
+    char title4[] = {200, 201, 202, 203, 204, 205, 206, 0};
+    char title5[] = {175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 0};
+    write_text(11, 2, title1);
+    write_text(11, 3, title2);
+    write_text(15, 4, title3);
+    write_text(15, 5, title4);
+    write_text( 8, 7, title5);
+    write_text( 8,16, "[ABURI GAMES 2023");
+    write_text( 7,18, "ALL RIGHT RESERVED");
+}
+
+
+/**
  * メイン
  */
 int main()
@@ -429,7 +449,7 @@ int main()
     game_init();
 
     // 画面初期化
-    init_screen();
+    draw_title();
 
     while(true) {
         if (updated)
