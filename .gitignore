@@ -2,4 +2,7 @@ build/
 dist/
 .tmp/
 src/asm/*.lis
+src/c/*.lis
+src/c/*.sym
+mics/mame/msx1_cart
 .ticks_history.txt
