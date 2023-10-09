@@ -1,20 +1,31 @@
 // License:MIT License
 // copyright-holders:Hitoshi Iwai
 
-#include <stdio.h>
+//#include <stdio.h>
+//#include <string.h>
 #include <stdint.h>
-#include <string.h>
 #include <msx.h>
 #include <msx/gfx.h>
 
 
 // 定数（インライン展開される）
-#define MSX_H_TIMI  0xfd9f
-#define VRAM_START  0x1800
-#define VRAM_WIDTH  32
-#define VRAM_HEIGHT 24
-#define CHR_SPACE   0x20
-#define BUFF_SIZE   32*24
+#define MSX_H_TIMI          0xfd9f
+#define VRAM_START          0x1800
+#define VRAM_WIDTH          32
+#define VRAM_HEIGHT         24
+#define CHR_SPACE           0x20
+#define BUFF_SIZE           32*24
+
+// 定数（ドア制御用）
+#define DOOR_STATE_INIT     0
+#define DOOR_STATE_WAIT     1
+#define DOOR_STATE_MOVE     2
+#define DOOR_STATE_END      3
+#define DOOR_MODE_OPEN      0
+#define DOOR_MODE_CLODE     1
+#define DOOR_LEFT           0
+#define DOOR_RIGHT          30
+#define DOOR_WAIT_VALUE     30
 
 
 // マクロ（インライン展開される）
@@ -42,18 +53,28 @@ void buff_wrtbcd(unsigned char* buffaddr, uint8_t buffoffset, unsigned char* dis
 void count_tick();
 
 
+// 関数のプロトタイプ宣言（固有処理）
+void door_anim();
+
+
 // パターンネームテーブル
 uint8_t PTN_NAME_TBL[BUFF_SIZE] = {0};
 
 // スプライトアトリビュートテーブル
 uint8_t SPR_ATTR_TBL[32][4] = {0};
 
+// 入力バッファ（方向）
+uint8_t STICK_BUFF = 0;
+
+// 入力バッファ（トリガ）
+uint8_t STRIG_BUFF = 0;
+
 
 // スコアデータ
 unsigned char score[3] = {0x00, 0x00, 0x00};
 
 // 画面更新完了フラグ
-bool updated = false;
+bool isUpdated = false;
 
 // 経過時間
 uint16_t tick1 = 0;
@@ -82,11 +103,36 @@ uint16_t x[8];
 // キャラクタY座標
 uint16_t y[8];
 
+// キャラクタパターン
+uint8_t p[8];
+
+// キャラクタアニメーションカウンタ
+uint8_t r[8];
+
+// キャラクタカラー
+uint8_t c[8];
+
 // キャラクタ状態
 uint8_t f[8];
 
 // キャラクタ番号
 uint8_t chr_num = 0;
+
+
+// ドアの座標
+uint8_t door_x = 0;
+
+// ドアの段階
+uint8_t door_cnt = 0;
+
+// ドアの状態
+uint8_t door_state = 0;
+
+// ドアのモード
+uint8_t door_mode = 0;
+
+// ドアのウェイトカウンタ
+uint8_t door_wait_count = 0;
 
 
 /**
@@ -96,9 +142,16 @@ uint8_t chr_num = 0;
 void screen_update()
 {
     // 画面更新済（ロジック処理未終了）なら抜ける
-    if (updated) {
+    if (isUpdated) {
         return;
     }
+
+    // 入力処理
+    STICK_BUFF = get_stick(0) + get_stick(1);
+    STRIG_BUFF = get_trigger(0) + get_trigger(1);
+
+    // 経過時間加算
+    count_tick();
 
     #ifndef __INTELLISENSE__
     __asm
@@ -118,11 +171,8 @@ void screen_update()
     __endasm;
     #endif
 
-    // 経過時間加算
-    count_tick();
-
     // 画面更新済（ロジック処理可）に設定する
-    updated = true;
+    isUpdated = true;
     return;
 }
 
@@ -429,6 +479,37 @@ void change_state(state_t distState)
     tick2 = 0;
 }
 
+
+/**
+ * スプライトアトリビュート更新
+ * - スプライトアトリビュートを更新する
+ *
+ * args:
+ * - uint8_t        chr_idx     対象のキャラクタデータインデックス
+ * - uint8_t        attr_idx    対象のアトリビュートデータインデックス
+ * - bool           isPlayer    プレイヤーの場合はtrue
+ *
+ * return:
+ * - void
+ */
+void update_sprite_attr(uint8_t attr_idx, uint8_t chr_idx, bool isPlayer)
+{
+    uint8_t ptn = (p[chr_idx] * 4) + (r[chr_idx] * 8);
+
+    SPR_ATTR_TBL[attr_idx][0] = y[chr_idx];
+    SPR_ATTR_TBL[attr_idx][1] = x[chr_idx];
+    SPR_ATTR_TBL[attr_idx][2] = ptn;
+    SPR_ATTR_TBL[attr_idx][3] = c[chr_idx];
+    if (isPlayer) {
+        attr_idx++;
+        SPR_ATTR_TBL[attr_idx][0] = y[chr_idx];
+        SPR_ATTR_TBL[attr_idx][1] = x[chr_idx];
+        SPR_ATTR_TBL[attr_idx][2] = ptn + 4;
+        SPR_ATTR_TBL[attr_idx][3] = c[chr_idx + 1];
+    }
+}
+
+
 /**
  * 初期設定処理
  *
@@ -531,6 +612,75 @@ void make_screen()
 
 
 /**
+ * ドアアニメーション処理
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void door_anim() {
+
+    if (door_state == DOOR_STATE_INIT) {
+        door_wait_count = DOOR_WAIT_VALUE;
+        if (door_mode == DOOR_MODE_OPEN) {
+            door_cnt = 0;
+        } else {
+            door_cnt = 5;
+        }
+        door_state = DOOR_STATE_MOVE;
+        return;
+    }
+
+    if (door_state == DOOR_STATE_MOVE) {
+        if (door_mode == DOOR_MODE_OPEN) {
+            door_cnt++;
+        } else {
+            door_cnt--;
+        }
+
+        if (door_cnt == 0 || door_cnt == 5) {
+            door_state = DOOR_STATE_END;
+        } else {
+            door_wait_count = DOOR_WAIT_VALUE;
+            door_state = DOOR_STATE_WAIT;
+        }
+
+        switch (door_cnt) {
+            case 1:
+                buff_wrttext(door_x, 17, "oo");
+                buff_wrttext(door_x, 18, "of");
+                buff_wrttext(door_x, 19, "fo");
+                break;
+            case 2:
+                buff_wrttext(door_x, 17, "of");
+                buff_wrttext(door_x, 18, "fo");
+                buff_wrttext(door_x, 19, "  ");
+                break;
+            case 3:
+                buff_wrttext(door_x, 17, "fo");
+                buff_wrttext(door_x, 18, "  ");
+                break;
+            case 4:
+                buff_wrttext(door_x, 17, "  ");
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (door_state == DOOR_STATE_WAIT) {
+        door_wait_count--;
+        if (door_wait_count == 0) {
+            door_state = DOOR_STATE_MOVE;
+        }
+        return;
+    }
+}
+
+
+/**
  * ゲーム初期化
  */
 void init_screen()
@@ -574,20 +724,16 @@ void title()
             x[i] = title_init_x[i];
             y[i] = title_init_y[i];
         }
+        p[0] = 0;
+        r[0] = 1;
+        c[0] = 4;
+        c[1] = 11;
 
         // スプライトアトリビュートセット
-        SPR_ATTR_TBL[i][0] = y[0];
-        SPR_ATTR_TBL[i][1] = x[0];
-        SPR_ATTR_TBL[i][2] = 0;
-        SPR_ATTR_TBL[i][3] = 4;
-        i++;
-        SPR_ATTR_TBL[i][0] = y[0];
-        SPR_ATTR_TBL[i][1] = x[0];
-        SPR_ATTR_TBL[i][2] = 4;
-        SPR_ATTR_TBL[i][3] = 11;
+        update_sprite_attr(0, 0, true);
 
         // 目の初期設定
-        for (i = 1; i < 5; i++) {
+        for (uint8_t i = 1; i < 5; i++) {
             f[i] = get_rnd() % 2;
             if (f[i] == 1) {
                 buff_wrttext(x[i], y[i], "m");
@@ -602,30 +748,81 @@ void title()
         return;
     }
 
-    // 目の状態変更
-    if (tick1 % 30 == 0) {
-        if (get_rnd() % 2 == 0) {
-            if (f[chr_num] == 1) {
-                f[chr_num] = 0;
-                buff_wrttext(x[chr_num], y[chr_num], "m");
-            } else {
-                f[chr_num] = 1;
-                buff_wrttext(x[chr_num], y[chr_num], " ");
+    if (substate == 1) {
+        // 目の状態変更
+        if (tick1 % 30 == 0) {
+            if (get_rnd() % 2 == 0) {
+                if (f[chr_num] == 1) {
+                    f[chr_num] = 0;
+                    buff_wrttext(x[chr_num], y[chr_num], "m");
+                } else {
+                    f[chr_num] = 1;
+                    buff_wrttext(x[chr_num], y[chr_num], " ");
+                }
+            }
+            chr_num++;
+            if (chr_num > 5) {
+                chr_num = 1;
             }
         }
-        chr_num++;
-        if (chr_num > 5) {
-            chr_num = 1;
+
+        // PUSH START 表示
+        if (tick2 % 2 == 0) {
+            buff_wrttext(11, 12, "PUSH START");
+        } else {
+            buff_wrttext(11, 12, "          ");
+        }
+
+        // 入力判定
+        if (STRIG_BUFF) {
+            substate = 2;
+        }
+
+        return;
+    }
+
+    if (substate == 2) {
+        for (uint8_t i = 12; i < 19; i++) {
+            buff_wrttext(7, i, "                   ");
+        }
+        substate = 3;
+        return;
+    }
+
+    if (substate == 3) {
+        if (x[0] >= 208) {
+            // 次のstateの準備
+            door_mode = DOOR_MODE_OPEN;
+            door_state = DOOR_STATE_INIT;
+            door_x = DOOR_RIGHT;
+            substate = 4;
+            return;
+        } else {
+            if (tick1 % 8 == 0) {
+                x[0] = x[0] + 4;
+                r[0] = r[0] ^ 1;
+                update_sprite_attr(0, 0, true);
+            }
         }
     }
 
-    if (tick1 % 60 == 0) {
-        if (substate == 1) {
-            buff_wrttext(11, 12, "PUSH START");
-            substate = 2;
-        } else {
-            buff_wrttext(11, 12, "          ");
-            substate = 1;
+    if (substate == 4) {
+        door_anim();
+        if (door_state == DOOR_STATE_END) {
+            substate = 5;
+        }
+    }
+
+    if (substate == 5) {
+        if (tick1 % 8 == 0) {
+            if (x[0] >= 240) {
+                y[0] = 211;
+                substate = 6;
+            } else {
+                x[0] = x[0] + 4;
+                r[0] = r[0] ^ 1;
+            }
+            update_sprite_attr(0, 0, true);
         }
     }
 }
@@ -638,7 +835,7 @@ void game_loop()
 {
     while(1) {
         // 画面更新済（ロジック処理可）なら処理する
-        if (updated) {
+        if (isUpdated) {
             switch (state) {
                 case TITLE:
                     title();
@@ -647,7 +844,7 @@ void game_loop()
             }
 
             // 画面更新完了フラグを画面更新未完了に設定
-            updated = false;
+            isUpdated = false;
         }
 
     }
