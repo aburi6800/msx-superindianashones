@@ -13,7 +13,10 @@ include(./cmake/macros.cmake)
 add_source_files(
     ./src/asm/define_graphic_chars.asm
     ./src/asm/define_sprite_chars.asm
+    ./src/c/common.c
+    ./src/c/screen.c
     ./src/c/example.c
+    ./src/c/main.c
 )
 
 add_compile_flags(C

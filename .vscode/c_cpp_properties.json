@@ -5,7 +5,9 @@
             "includePath": [
                 "${workspaceFolder}/src/c/*",
                 "${env:Z88DK_HOME}/include/*",
-                "${env:Z88DK_HOME}/include/**/*"
+                "${env:Z88DK_HOME}/include/**/*",
+                "${workspaceFolder}/src/c",
+                "${workspaceFolder}/src/c"
             ],
             "defines": [],
             "compilerPath": "/home/hitoshi/Development/git/z88dk/z88dk/bin/zcc",

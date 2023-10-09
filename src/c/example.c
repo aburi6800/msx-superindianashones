@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <msx.h>
 #include <msx/gfx.h>
+#include "common.h"
+#include "screen.h"
+#include "example.h"
 
 
 // 定数（インライン展開される）
@@ -14,7 +17,6 @@
 #define VRAM_WIDTH          32
 #define VRAM_HEIGHT         24
 #define CHR_SPACE           0x20
-#define BUFF_SIZE           32*24
 
 // 定数（ドア制御用）
 #define DOOR_STATE_INIT     0
@@ -43,23 +45,6 @@ extern uint8_t CHR_COL_TBL[];
 extern uint8_t SPR_PTN_TBL[];
 
 
-// 関数のプロトタイプ宣言（共通系）
-void add_bcd(uint16_t addvalue, unsigned char* distaddr, uint8_t distbytes);
-
-void buff_wrttext(uint8_t x, uint8_t y, char* text);
-
-void buff_wrtbcd(unsigned char* buffaddr, uint8_t buffoffset, unsigned char* distaddr, uint8_t distbytes);
-
-void count_tick();
-
-
-// 関数のプロトタイプ宣言（固有処理）
-void door_anim();
-
-
-// パターンネームテーブル
-uint8_t PTN_NAME_TBL[BUFF_SIZE] = {0};
-
 // スプライトアトリビュートテーブル
 uint8_t SPR_ATTR_TBL[32][4] = {0};
 
@@ -79,18 +64,6 @@ bool isUpdated = false;
 // 経過時間
 uint16_t tick1 = 0;
 uint16_t tick2 = 0;
-
-
-// ゲーム状態ENUM
-typedef enum{
-    TITLE,
-    ROUND_START,
-    GAME_MAIN,
-    ROUND_CLEAR,
-    ALL_CLEAR,
-    MISS,
-    GAME_OVER
-} state_t;
 
 // ゲーム状態
 uint8_t state;
@@ -138,6 +111,12 @@ uint8_t door_wait_count = 0;
 /**
  * 画面更新
  * - H.TIMI割り込みから呼ばれる
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
  */
 void screen_update()
 {
@@ -160,7 +139,7 @@ void screen_update()
     #endif
 
     // パターンネームテーブル更新
-    vwrite(PTN_NAME_TBL, 0x1800, 768);
+    write_vram();
 
     // スプライトアトリビュートテーブル更新
     vwrite(SPR_ATTR_TBL, 0x1B00, 128);
@@ -197,263 +176,6 @@ void count_tick()
         // tick2加算
         tick2++;
     }
-}
-
-
-/**
- * 仮想画面バッファクリア
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-void buff_clear()
-{
-    for (uint16_t i = 0; i < BUFF_SIZE; i++) {
-        PTN_NAME_TBL[i] = 32;
-    }
-}
-
-
-/**
- * テキスト表示
- * - 構造体に指定されたテキストを仮想画面のx,y座標に書き込む。
- * - 画面端のはみ出し処理はしていないので注意。
- *
- * args:
- * - text_t         text        テキスト表示関数の構造体
- *
- * return:
- * - void
- */
-void buff_wrttext(uint8_t x, uint8_t y, char* text)
-{
-    for (uint8_t i = 0; i < strlen(text); i++) {
-        PTN_NAME_TBL[y*32+x] = text[i];
-        x++;
-    }
-}
-
-
-/**
- * BCD加算
- * - 対象データに対し引数で与えた16ビットのBCD値を加算する。
- *
- * args:
- * - addvalue       uint16_t    加算値
- * - distaddr       char        加算対象データアドレス
- * - distbytes      uint8_t     加算対象データバイト数
- *
- * return:
- * - void
- */
-void add_bcd(uint16_t addvalue, unsigned char* distaddr, uint8_t distbytes)
-{
-    #ifndef __INTELLISENSE__
-__asm
-    // リターンアドレスをスキップ
-    LD HL,2
-    ADD HL,SP                   // SP+2を引数取得開始アドレスに設定
-
-    // 第3引数(加算対象データバイト数)を取得
-    LD B,(HL)                   // B <- 加算対象データバイト数
-    INC HL
-    INC HL
-
-    // 第2引数(加算対象データアドレス)を取得
-    LD E,(HL)
-    INC HL
-    LD D,(HL)
-    INC HL
-    PUSH DE                     // スタックに退避
-
-    // 第1引数(加算値)を取得
-    LD E,(HL)                   // DE <- 加算値
-    INC HL
-    LD D,(HL)
-
-    // レジスタ設定
-    POP HL                      // HL <- 加算対象データアドレス
-
-    // 加算対象データバイト数により処理開始アドレス設定
-    DEC B                       // 加算対象データバイト数を1減算(1byte=0、2byte=1、3byte=2)
-
-    LD A,B                      // A <- B
-    ADD A,L                     // HL=HL+A
-    JR NC,add_bcd_L1
-    INC H
-
-add_bcd_L1:
-    LD L,A
-
-    // 1〜2桁目の加算
-	LD A,E					    // AレジスタにEレジスタの値をロード
-    ADD A,(HL)			        // Aレジスタの値に(HL)の値を加算
-    DAA						    // Aレジスタの値を内部10進に補正
-    						    // 桁溢れした場合はここでキャリーフラグが立つ
-    PUSH AF                     // フラグの状態を保存
-    LD (HL),A				    // Aレジスタの値を(HL)に格納
-
-    LD A,B                      // Aレジスタに現在の加算対象データバイト数をロード
-    OR A                        // ゼロか？
-    JR Z,add_bcd_L2             // ゼロならadd_bcd_L2へ
-    DEC A                       // 加算対象データバイト数を1減算
-    LD B,A                      // Bレジスタに保存
-
-    // 3〜4桁目の加算
-    DEC HL                      // 加算対象データアドレスを-1
-    POP AF                      // フラグの状態を復帰
-    LD A,D					    // AレジスタにDレジスタの値をロード
-    ADC A,(HL)			        // Aレジスタの値に(HL)＋キャリーフラグを加算
-    						    // 桁溢れした場合はキャリーフラグが立つが無視する
-    DAA						    // Aレジスタの値を内部10進に補正
-    PUSH AF                     // フラグの状態を保存
-    LD (HL),A				    // Aレジスタの値を(HL)に格納
-
-    JR NC,add_bcd_L2            // 桁繰り上がりが無ければadd_bcd_L2へ
-
-    LD A,B                      // Aレジスタに現在の加算対象データバイト数をロード
-    OR A                        // ゼロか？
-    JR Z,add_bcd_L2             // ゼロならadd_bcd_L2へ
-
-    // 5〜6桁目の加算（桁繰り上がり発生時のみ）
-    POP AF                      // フラグの状態を復帰
-    OR A                        // フラグクリア
-    DEC HL                      // 加算対象データアドレスを-1
-    LD A,(HL)                   // 5〜6桁目に1加算
-    INC A
-    DAA                         // Aレジスタの値を内部10進に補正
-    PUSH AF                     // フラグの状態を保存（ダミー）
-    LD (HL),A                   // Aレジスタの値を(HL)に格納
-
-add_bcd_L2:
-    POP AF
-
-__endasm
-    #endif
-}
-
-
-/**
- * BCD値仮想画面表示
- *
- * args:
- * - buffaddr       char        仮想画面アドレス
- * - buffoffset     uint8_t     仮想画面オフセット値
- * - distaddr       char        表示データアドレス
- * - distbytes      uint8_t     表示データバイト数
- *
- * return:
- * - void
- */
-void buff_wrtbcd(unsigned char* buffaddr, uint8_t buffoffset, unsigned char* distaddr, uint8_t distbytes)
-{
-    #ifndef __INTELLISENSE__
-__asm
-    // リターンアドレスをスキップ
-    LD HL,2
-    ADD HL,SP                   // SP+2を引数取得開始アドレスに設定
-
-    // 第4引数(表示データバイト数)を取得
-    LD B,(HL)                   // B -< 表示データバイト数
-    INC HL
-    INC HL
-
-    // 第3引数(表示データアドレス)を取得
-    LD E,(HL)
-    INC HL
-    LD D,(HL)
-    INC HL
-    PUSH DE                     // スタックに退避
-
-    // 第2引数(仮想画面オフセット値)を取得
-    LD E,(HL)                   // DE <- 仮想画面オフセット値
-    INC HL
-    LD D,(HL)
-    INC HL
-    PUSH DE                     // スタックに退避
-
-    // 第1引数(仮想画面アドレス)を取得
-    LD E,(HL)                   // DE <- 仮想画面アドレス
-    INC HL
-    LD D,(HL)
-    PUSH DE                     // スタックに退避
-
-    // レジスタ設定
-    POP HL                      // HL <- 仮想画面アドレス
-    POP DE                      // HL <- 仮想画面オフセット値
-    ADD HL,DE                   // HL(仮想画面オフセット値)にDE(仮想画面アドレス)を加算 = 更新対象の仮想画面先頭アドレスを求める
-
-    POP DE                      // DE <- 表示データアドレス
-
-    // 表示する桁数分、スペースで埋める
-    PUSH BC
-    PUSH DE
-    PUSH HL
-
-    LD A,B
-    ADD A,A                     // 表示文字数を算出 (表示桁*2)
-    LD B,A                      // B(繰り返し数) = 表示文字数
-
-write_bcd_L2:
-    LD (HL),$20                 // 表示桁分、スペースを埋める
-    INC HL
-    DJNZ write_bcd_L2
-
-    DEC HL
-    LD (HL),$30                 // 末尾はゼロ固定表示
-
-    POP HL
-    POP DE
-    POP BC
-
-    // 数値描画
-    LD C,0                      // ゼロ表示フラグ初期化
-
-write_bcd_L3:
-    LD A,(DE)                   // A <- DE(表示データ)
-	CALL put_bcd			    // データを表示
-	INC DE					    // DE=DE+1(＝表示データの次のアドレスが設定される)
-    INC HL					    // HL=HL+1(＝表示位置を1つ右に移動)
-    DJNZ write_bcd_L3           // B=B-1、ゼロでなければ繰り返す
-
-	RET
-
-    // 1バイト(2桁)のBCD値描画
-put_bcd:
-	// 上1桁の処理
-    PUSH AF
-    SRL A					    // Aレジスタの値を4回右シフトして、上位4ビットを取り出す
-    SRL A
-    SRL A
-    SRL A
-    CALL put_bcd_L1			    // オフスクリーンバッファにデータ設定
-
-	// 下1桁の処理
-    POP AF
-    INC HL					    // HLレジスタの値を1加算(＝データ表示位置を1つ右に移動)
-
-put_bcd_L1:
-	// 仮想画面にデータ設定
-	AND $0F				        // 上位4ビットをゼロにする(=下位4ビットの値だけ取り出す)
-    OR A
-    JR NZ,put_bcd_L2            // 値がゼロ以外の場合はL2へ
-
-    INC C                       // 値がゼロの時はゼロ表示フラグを判定
-    DEC C
-    RET Z                       // ゼロ表示フラグがOFFの時はゼロ表示せず抜ける
-
-put_bcd_L2:
-    INC C                       // 以降のゼロは表示させるので、ゼロ表示フラグを+1
-    ADD A,$30				    // 値にキャラクタコード&H30('0')を加える
-    LD (HL),A                   // 仮想画面にデータを設定
-
-    RET
-
-__endasm
-    #endif
 }
 
 
@@ -559,19 +281,25 @@ void game_init()
     // 仮想画面クリア
     buff_clear();
 
-    // 画面クリア
-    fill(VRAM_START, CHR_SPACE, VRAM_WIDTH * VRAM_HEIGHT);
-
     // ゲーム状態初期化
     change_state(TITLE);
 }
 
 
 /**
- * 画面描画
+ * 画面作成処理
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
  */
 void make_screen()
 {
+    // 仮想画面クリア
+    buff_clear();
+
     buff_wrttext(0, 0, "faaf                        aafa");
 
     if (state != TITLE && state != GAME_OVER) {
@@ -591,7 +319,7 @@ void make_screen()
     buff_wrttext(0,12, "d                             eb");
     buff_wrttext(0,13, "                               e");
     buff_wrttext(0,20, "gggggggggggggggggggggggggggggggg");
-    buff_wrttext(0,22, " SCORE        ROUND      LEFT"); //:GOSUB 2400
+    buff_wrttext(0,22, " SCORE        ROUND      LEFT");
 
     if (state != TITLE) {
         buff_wrttext(0,15, "hh");
@@ -620,7 +348,8 @@ void make_screen()
  * return:
  * - void
  */
-void door_anim() {
+void door_anim()
+{
 
     if (door_state == DOOR_STATE_INIT) {
         door_wait_count = DOOR_WAIT_VALUE;
@@ -681,26 +410,19 @@ void door_anim() {
 
 
 /**
- * ゲーム初期化
- */
-void init_screen()
-{
-    // 仮想画面クリア
-    buff_clear();
-
-    // 画面表示
-    make_screen();
-}
-
-
-/**
  * タイトル画面
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
  */
 void title()
 {
     if (substate == 0) {
-        // ゲーム初期化
-        init_screen();
+        // ゲーム画面初期化
+        make_screen();
 
         // タイトルロゴ描画
         char title1[] = {161, 162, 163, 164, 165, 166, 167, 0};
@@ -741,7 +463,7 @@ void title()
         }
         chr_num = 1;
         add_bcd(0x0010, score, sizeof(score));
-        buff_wrtbcd(PTN_NAME_TBL, 6+(22*32), score, sizeof(score));
+        buff_wrtbcd(6 ,22, score);
 
         // サブステータスを変更
         substate = 1;
@@ -830,6 +552,12 @@ void title()
 
 /**
  * ゲームループ
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
  */
 void game_loop()
 {
@@ -848,16 +576,4 @@ void game_loop()
         }
 
     }
-}
-
-/**
- * メイン
- */
-int main()
-{
-    // ゲーム初期設定
-    game_init();
-
-    // ゲームループ
-    game_loop();
 }
