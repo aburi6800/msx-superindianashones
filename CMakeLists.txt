@@ -11,8 +11,9 @@ enable_language(ASM)
 include(./cmake/macros.cmake)
 
 add_source_files(
-    ./src/c/example.c
     ./src/asm/define_graphic_chars.asm
+    ./src/asm/define_sprite_chars.asm
+    ./src/c/example.c
 )
 
 add_compile_flags(C

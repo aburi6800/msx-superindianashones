@@ -14,32 +14,40 @@
 #define VRAM_WIDTH  32
 #define VRAM_HEIGHT 24
 #define CHR_SPACE   0x20
+#define BUFF_SIZE   32*24
 
 
 // マクロ（インライン展開される）
 #define VPOS(x, y)  (VRAM_START + VRAM_WIDTH * y + x)
+#define POS(x, y)   (VRAM_WIDTH * y + x)
 
 
-// chrptn.asm:CHR_PTN_TBL ラベルの参照(パターンジェネレータテーブル)
+// define_graphic_chars.asm:CHR_PTN_TBL ラベルの参照(パターンジェネレータテーブル)
 extern uint8_t CHR_PTN_TBL[];
 
-// chrptn.asm:CHR_COL_TBL ラベルの参照(カラーテーブル)
+// define_graphic_chars.asm:CHR_COL_TBL ラベルの参照(カラーテーブル)
 extern uint8_t CHR_COL_TBL[];
 
+// define_sprite_chars.asm:SPR_PTN_TBL ラベルの参照
+extern uint8_t SPR_PTN_TBL[];
 
-// 関数のプロトタイプ宣言
-void write_text(uint8_t x, uint8_t y, char* text);
 
+// 関数のプロトタイプ宣言（共通系）
 void add_bcd(uint16_t addvalue, unsigned char* distaddr, uint8_t distbytes);
 
-void write_bcd(unsigned char* buffaddr, uint8_t buffoffset, unsigned char* distaddr, uint8_t distbytes);
+void buff_wrttext(uint8_t x, uint8_t y, char* text);
+
+void buff_wrtbcd(unsigned char* buffaddr, uint8_t buffoffset, unsigned char* distaddr, uint8_t distbytes);
+
+void count_tick();
 
 
 // パターンネームテーブル
-uint8_t PTN_NAME_TBL[24*32] = {0};
+uint8_t PTN_NAME_TBL[BUFF_SIZE] = {0};
 
 // スプライトアトリビュートテーブル
 uint8_t SPR_ATTR_TBL[32][4] = {0};
+
 
 // スコアデータ
 unsigned char score[3] = {0x00, 0x00, 0x00};
@@ -47,14 +55,48 @@ unsigned char score[3] = {0x00, 0x00, 0x00};
 // 画面更新完了フラグ
 bool updated = false;
 
+// 経過時間
+uint16_t tick1 = 0;
+uint16_t tick2 = 0;
+
+
+// ゲーム状態ENUM
+typedef enum{
+    TITLE,
+    ROUND_START,
+    GAME_MAIN,
+    ROUND_CLEAR,
+    ALL_CLEAR,
+    MISS,
+    GAME_OVER
+} state_t;
+
+// ゲーム状態
+uint8_t state;
+uint8_t substate;
+
+
+// キャラクタX座標
+uint16_t x[8];
+
+// キャラクタY座標
+uint16_t y[8];
+
+// キャラクタ状態
+uint8_t f[8];
+
+// キャラクタ番号
+uint8_t chr_num = 0;
+
 
 /**
  * 画面更新
+ * - H.TIMI割り込みから呼ばれる
  */
 void screen_update()
 {
-    if (updated)
-    {
+    // 画面更新済（ロジック処理未終了）なら抜ける
+    if (updated) {
         return;
     }
 
@@ -76,8 +118,52 @@ void screen_update()
     __endasm;
     #endif
 
+    // 経過時間加算
+    count_tick();
+
+    // 画面更新済（ロジック処理可）に設定する
     updated = true;
     return;
+}
+
+
+/**
+ * tick値加算
+ * - tick1は毎フレーム加算する
+ * - tick2は60フレームごとに加算する（＝秒カウント）
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void count_tick()
+{
+    // tick1加算
+    tick1++;
+
+    if (tick1 % 60 == 0) {
+        // tick2加算
+        tick2++;
+    }
+}
+
+
+/**
+ * 仮想画面バッファクリア
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void buff_clear()
+{
+    for (uint16_t i = 0; i < BUFF_SIZE; i++) {
+        PTN_NAME_TBL[i] = 32;
+    }
 }
 
 
@@ -92,11 +178,9 @@ void screen_update()
  * return:
  * - void
  */
-//void write_text(write_text_t arg)
-void write_text(uint8_t x, uint8_t y, char* text)
+void buff_wrttext(uint8_t x, uint8_t y, char* text)
 {
-    for (uint8_t i = 0; i < strlen(text); i++)
-    {
+    for (uint8_t i = 0; i < strlen(text); i++) {
         PTN_NAME_TBL[y*32+x] = text[i];
         x++;
     }
@@ -214,7 +298,7 @@ __endasm
  * return:
  * - void
  */
-void write_bcd(unsigned char* buffaddr, uint8_t buffoffset, unsigned char* distaddr, uint8_t distbytes)
+void buff_wrtbcd(unsigned char* buffaddr, uint8_t buffoffset, unsigned char* distaddr, uint8_t distbytes)
 {
     #ifndef __INTELLISENSE__
 __asm
@@ -324,6 +408,28 @@ __endasm
 
 
 /**
+ * ゲーム状態変更
+ * - state_tで定義したゲーム状態を渡すことで状態を変更し、サブステータスをリセットする
+ * - 状態変更後、経過時間をゼロにリセットする
+ *
+ * args:
+ * - distState      state_t     変更後のゲーム状態
+ *
+ * return:
+ * - void
+*/
+void change_state(state_t distState)
+{
+    // ゲーム状態を変更
+    state = distState;
+    substate = 0;
+
+    // 経過時間リセット
+    tick1 = 0;
+    tick2 = 0;
+}
+
+/**
  * 初期設定処理
  *
  * args:
@@ -354,6 +460,7 @@ void game_init()
     // 画面初期化
     set_color(15, 1, 1);
     set_mangled_mode();
+    msx_set_sprite_mode(sprite_large);
 
     // パターンジェネレータテーブル設定
     vwrite(CHR_PTN_TBL, 0x0000, 0x0800);
@@ -365,8 +472,17 @@ void game_init()
     vwrite(CHR_COL_TBL, 0x2800, 0x0800);
     vwrite(CHR_COL_TBL, 0x3000, 0x0800);
 
+    // スプライトパターンテーブル設定
+    vwrite(SPR_PTN_TBL, 0x3800, 32*19);
+
+    // 仮想画面クリア
+    buff_clear();
+
     // 画面クリア
     fill(VRAM_START, CHR_SPACE, VRAM_WIDTH * VRAM_HEIGHT);
+
+    // ゲーム状態初期化
+    change_state(TITLE);
 }
 
 
@@ -375,35 +491,42 @@ void game_init()
  */
 void make_screen()
 {
-    write_text(0, 0, "faaf                        aafa");
-    write_text(4, 0, "babfaaabaaaaafbfaafaaaab");
-    write_text(0, 1, "aafd                        ceba");
-    write_text(0, 2, "bff                          aaf");
-    write_text(0, 3, "fac                          daf");
-    write_text(0, 4, "ad                            fa");
-    write_text(0, 5, "a d                           ca");
-    write_text(0, 6, "a                            e a");
-    write_text(0, 7, "d                              e");
-    write_text(0, 8, " d                            e ");
-    write_text(0, 9, "b                               ");
-    write_text(0,10, "f                              b");
-    write_text(0,11, "bd                            bf");
-    write_text(0,12, "d                             eb");
-    write_text(0,13, "                               e");
-    write_text(0,20, "gggggggggggggggggggggggggggggggg");
-    write_text(0,22, " SCORE        ROUND      LEFT"); //:GOSUB 2400
-//8160 IF GS=1 THEN 8220
-    write_text(0,15, "hh");
-    write_text(0,16, "hhh");
-    write_text(0,17, "ooh");
-    write_text(0,18, "  h");
-    write_text(0,19, "  h");
-//8220 IF GS=5 THEN RETURN
-    write_text(29,15, " hh");
-    write_text(29,16, "hhh");
-    write_text(29,17, "hoo");
-    write_text(29,18, "hof");
-    write_text(29,19, "hfo");
+    buff_wrttext(0, 0, "faaf                        aafa");
+
+    if (state != TITLE && state != GAME_OVER) {
+        buff_wrttext(4, 0, "babfaaabaaaaafbfaafaaaab");
+    }
+    buff_wrttext(0, 1, "aafd                        ceba");
+    buff_wrttext(0, 2, "bff                          aaf");
+    buff_wrttext(0, 3, "fac                          daf");
+    buff_wrttext(0, 4, "ad                            fa");
+    buff_wrttext(0, 5, "a d                           ca");
+    buff_wrttext(0, 6, "a                            e a");
+    buff_wrttext(0, 7, "d                              e");
+    buff_wrttext(0, 8, " d                            e ");
+    buff_wrttext(0, 9, "b                               ");
+    buff_wrttext(0,10, "f                              b");
+    buff_wrttext(0,11, "bd                            bf");
+    buff_wrttext(0,12, "d                             eb");
+    buff_wrttext(0,13, "                               e");
+    buff_wrttext(0,20, "gggggggggggggggggggggggggggggggg");
+    buff_wrttext(0,22, " SCORE        ROUND      LEFT"); //:GOSUB 2400
+
+    if (state != TITLE) {
+        buff_wrttext(0,15, "hh");
+        buff_wrttext(0,16, "hhh");
+        buff_wrttext(0,17, "ooh");
+        buff_wrttext(0,18, "  h");
+        buff_wrttext(0,19, "  h");
+    }
+
+    if (state != ALL_CLEAR) {
+        buff_wrttext(29,15, " hh");
+        buff_wrttext(29,16, "hhh");
+        buff_wrttext(29,17, "hoo");
+        buff_wrttext(29,18, "hof");
+        buff_wrttext(29,19, "hfo");
+    }
 }
 
 
@@ -412,6 +535,9 @@ void make_screen()
  */
 void init_screen()
 {
+    // 仮想画面クリア
+    buff_clear();
+
     // 画面表示
     make_screen();
 }
@@ -420,25 +546,112 @@ void init_screen()
 /**
  * タイトル画面
  */
-void draw_title()
+void title()
 {
-    // ゲーム初期化
-    init_screen();
+    if (substate == 0) {
+        // ゲーム初期化
+        init_screen();
 
-    char title1[] = {161, 162, 163, 164, 165, 166, 167, 0};
-    char title2[] = {193, 194, 195, 196, 197, 198, 199, 0};
-    char title3[] = {168, 169, 170, 171, 172, 173, 174, 0};
-    char title4[] = {200, 201, 202, 203, 204, 205, 206, 0};
-    char title5[] = {175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 0};
-    write_text(11, 2, title1);
-    write_text(11, 3, title2);
-    write_text(15, 4, title3);
-    write_text(15, 5, title4);
-    write_text( 8, 7, title5);
-    write_text( 8,16, "[ABURI GAMES 2023");
-    write_text( 7,18, "ALL RIGHT RESERVED");
+        // タイトルロゴ描画
+        char title1[] = {161, 162, 163, 164, 165, 166, 167, 0};
+        char title2[] = {193, 194, 195, 196, 197, 198, 199, 0};
+        char title3[] = {168, 169, 170, 171, 172, 173, 174, 0};
+        char title4[] = {200, 201, 202, 203, 204, 205, 206, 0};
+        char title5[] = {175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 0};
+        buff_wrttext(11, 2, title1);
+        buff_wrttext(11, 3, title2);
+        buff_wrttext(15, 4, title3);
+        buff_wrttext(15, 5, title4);
+        buff_wrttext( 8, 7, title5);
+        buff_wrttext( 8,16, "[ABURI GAMES 2023");
+        buff_wrttext( 7,18, "ALL RIGHT RESERVED");
+
+        // キャラクターの初期座標設定
+        uint8_t title_init_x[6] = { 16,   5,   8,  21,  26,  27};
+        uint8_t title_init_y[6] = {143,   3,   1,   2,   1,   3};
+        uint8_t i = 0;
+        for (i = 0; i < 6; i++) {
+            x[i] = title_init_x[i];
+            y[i] = title_init_y[i];
+        }
+
+        // スプライトアトリビュートセット
+        SPR_ATTR_TBL[i][0] = y[0];
+        SPR_ATTR_TBL[i][1] = x[0];
+        SPR_ATTR_TBL[i][2] = 0;
+        SPR_ATTR_TBL[i][3] = 4;
+        i++;
+        SPR_ATTR_TBL[i][0] = y[0];
+        SPR_ATTR_TBL[i][1] = x[0];
+        SPR_ATTR_TBL[i][2] = 4;
+        SPR_ATTR_TBL[i][3] = 11;
+
+        // 目の初期設定
+        for (i = 1; i < 5; i++) {
+            f[i] = get_rnd() % 2;
+            if (f[i] == 1) {
+                buff_wrttext(x[i], y[i], "m");
+            }
+        }
+        chr_num = 1;
+        add_bcd(0x0010, score, sizeof(score));
+        buff_wrtbcd(PTN_NAME_TBL, 6+(22*32), score, sizeof(score));
+
+        // サブステータスを変更
+        substate = 1;
+        return;
+    }
+
+    // 目の状態変更
+    if (tick1 % 30 == 0) {
+        if (get_rnd() % 2 == 0) {
+            if (f[chr_num] == 1) {
+                f[chr_num] = 0;
+                buff_wrttext(x[chr_num], y[chr_num], "m");
+            } else {
+                f[chr_num] = 1;
+                buff_wrttext(x[chr_num], y[chr_num], " ");
+            }
+        }
+        chr_num++;
+        if (chr_num > 5) {
+            chr_num = 1;
+        }
+    }
+
+    if (tick1 % 60 == 0) {
+        if (substate == 1) {
+            buff_wrttext(11, 12, "PUSH START");
+            substate = 2;
+        } else {
+            buff_wrttext(11, 12, "          ");
+            substate = 1;
+        }
+    }
 }
 
+
+/**
+ * ゲームループ
+ */
+void game_loop()
+{
+    while(1) {
+        // 画面更新済（ロジック処理可）なら処理する
+        if (updated) {
+            switch (state) {
+                case TITLE:
+                    title();
+                default:
+                    break;
+            }
+
+            // 画面更新完了フラグを画面更新未完了に設定
+            updated = false;
+        }
+
+    }
+}
 
 /**
  * メイン
@@ -448,16 +661,6 @@ int main()
     // ゲーム初期設定
     game_init();
 
-    // 画面初期化
-    draw_title();
-
-    while(true) {
-        if (updated)
-        {
-            updated = false;
-
-            add_bcd(0x0010, score, sizeof(score));
-            write_bcd(PTN_NAME_TBL, 6+(22*32), score, sizeof(score));
-        }
-    }
+    // ゲームループ
+    game_loop();
 }
