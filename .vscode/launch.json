@@ -15,7 +15,7 @@
           "gdbpath": "${env:Z88DK_HOME}/bin/z88dk-gdb",
           "debugger_args": [
             "-x",
-            "${workspaceRoot}/dist/example.map" // or appropriate .map of your project (-m -debug needed!)
+            "${workspaceRoot}/dist/shones.map" // or appropriate .map of your project (-m -debug needed!)
           ],
           "autorun": [
           ]
@@ -30,8 +30,8 @@
         },
         "z88dkv2": [ // Z88DK 2.2 and DeZog 3.0 or higher
             {
-              "path": "src/c/example.c.lis",
-              "mapFile": "dist/example.map",
+              "path": "dist/shones.lis",
+              "mapFile": "dist/shones.map",
               "srcDirs": ["src/c/"]	// Sources mode
             }
         ],

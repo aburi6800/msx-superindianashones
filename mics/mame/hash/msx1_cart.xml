@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <!DOCTYPE softwarelist SYSTEM "softwarelist.dtd">
 <softwarelist name="msx1_cart" description="MSX1 cartridges">
-	<software name="example">
+	<software name="shones">
 		<description>example</description>
 		<year>2022</year>
 		<publisher>example</publisher>
 		<info name="serial" value="01" />
-		<info name="alt_title" value="example" />
+		<info name="alt_title" value="shones" />
 		<part name="cart" interface="msx_cart">
 			<dataarea name="rom" size="32768">
-				<rom name="example.rom" size="32768" crc="4e20d256" sha1="9a07e36719ca1cddde62853fefff7c9c43ad80d2" offset="0x0" />
+				<rom name="shones.rom" size="32768" crc="4e20d256" sha1="9a07e36719ca1cddde62853fefff7c9c43ad80d2" offset="0x0" />
 			</dataarea>
 		</part>
 	</software>

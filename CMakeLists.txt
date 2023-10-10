@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
-# target name "example.rom"
-project(example.rom C ASM)
+# target name "shones.rom"
+project(shones.rom C ASM)
 
 enable_language(ASM)
 
@@ -15,7 +15,7 @@ add_source_files(
     ./src/asm/define_sprite_chars.asm
     ./src/c/common.c
     ./src/c/screen.c
-    ./src/c/example.c
+    ./src/c/game_main.c
     ./src/c/main.c
 )
 

@@ -8,7 +8,7 @@
 #include <msx/gfx.h>
 #include "common.h"
 #include "screen.h"
-#include "example.h"
+#include "game_main.h"
 
 
 // 定数（インライン展開される）

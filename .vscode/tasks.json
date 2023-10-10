@@ -38,7 +38,7 @@
         "label": "Launch openMSX",
         "type": "shell",
         "linux": {
-            "command": "openmsx ${workspaceFolder}/dist/example.rom"
+            "command": "openmsx ${workspaceFolder}/dist/shones.rom"
         }
     },
     {
@@ -55,7 +55,7 @@
             "Deploy for MAME"
         ],
         "linux": {
-            "command": "(cd ${workspaceFolder}/mics/mame && ./mame cbiosm1jp example)"
+            "command": "(cd ${workspaceFolder}/mics/mame && ./mame cbiosm1jp shones)"
         }
     },
     {
@@ -65,7 +65,7 @@
             "Deploy for MAME"
         ],
         "linux": {
-            "command": "(cd ${workspaceFolder}/mics/mame && ./mame cbiosm1jp example -debugger gdbstub -debug)"
+            "command": "(cd ${workspaceFolder}/mics/mame && ./mame cbiosm1jp shones -debugger gdbstub -debug)"
         }
     },
     {
@@ -73,7 +73,7 @@
         "type": "shell",
         "dependsOn": "Run Build (make)",
         "linux": {
-            "command": "(cd dist/ && rm -f ${workspaceFolder}/mics/mame/roms/msx1_cart/example.zip && zip -j ${workspaceFolder}/mics/mame/roms/msx1_cart/example.zip example.rom)"
+            "command": "(cd dist/ && rm -f ${workspaceFolder}/mics/mame/roms/msx1_cart/example.zip && zip -j ${workspaceFolder}/mics/mame/roms/msx1_cart/shones.zip shones.rom)"
         }
     }
 ]

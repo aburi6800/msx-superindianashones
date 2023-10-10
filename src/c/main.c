@@ -1,7 +1,7 @@
 // License:MIT License
 // copyright-holders:Hitoshi Iwai
 
-#include "example.h"
+#include "game_main.h"
 
 
 /**
