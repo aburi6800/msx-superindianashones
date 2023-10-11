@@ -42,5 +42,5 @@ jobs:
     - uses: ncipollo/release-action@v1
       if: ${{ inputs.release }}
       with:
-        artifacts: "dist/example.rom"
+        artifacts: "dist/shones.rom"
         token: ${{ secrets.GITHUB_TOKEN }}
