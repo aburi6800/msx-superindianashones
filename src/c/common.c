@@ -108,14 +108,14 @@ __endasm
  *
  * args:
  * - distaddr       char        書き込み先アドレス
- * - distoffset     uint8_t     書き込み先オフセット値
+ * - distoffset     uint16_t     書き込み先オフセット値
  * - dataaddr       char        表示データアドレス
  * - databytes      uint8_t     表示データバイト数
  *
  * return:
  * - void
  */
-void wrtbcdtodec(unsigned char* distaddr, uint8_t distoffset, unsigned char* dataaddr, uint8_t databytes)
+void wrtbcdtodec(unsigned char* distaddr, uint16_t distoffset, unsigned char* dataaddr, uint8_t databytes)
 {
     #ifndef __INTELLISENSE__
 __asm

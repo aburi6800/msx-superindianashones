@@ -2,5 +2,10 @@
   "cmake.generator": "Ninja",
   "cmake.configureSettings": {
       "CMAKE_TOOLCHAIN_FILE" : "${workspaceFolder}/cmake/z88dk.cmake"
-  }
+  },
+  "files.associations": {
+    "*.asm": "asm-collection",
+    "stdint.h": "c"
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }

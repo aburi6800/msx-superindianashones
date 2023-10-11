@@ -1,6 +1,9 @@
 // License:MIT License
 // copyright-holders:Hitoshi Iwai
 
+#ifndef SCREEN_H
+#define SCREEN_H
+
 #include <stdint.h>
 
 
@@ -40,12 +43,12 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text);
  * args:
  * - x              uint8_t     出力先のX座標
  * - y              uint8_t     出力先のY座標
- * - value          char*       表示データのアドレス
+ * - value          unsigned char*       表示データのアドレス
  *
  * return:
  * - void
  */
-void buff_wrtbcd(uint8_t x, uint8_t y, char* value);
+void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value);
 
 
 /*
@@ -58,5 +61,18 @@ void buff_wrtbcd(uint8_t x, uint8_t y, char* value);
  * return:
  * - none
  */
-void write_vram();
+void transfer_ptn_name_tbl();
 
+
+/**
+ * 画面作成処理
+ *
+ * args:
+ * - state          uint8_t     ゲーム状態
+ *
+ * return:
+ * - void
+ */
+void make_screen(uint8_t state);
+
+#endif

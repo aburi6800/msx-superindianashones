@@ -13,8 +13,13 @@ include(./cmake/macros.cmake)
 add_source_files(
     ./src/asm/define_graphic_chars.asm
     ./src/asm/define_sprite_chars.asm
+    ./src/c/character.c
     ./src/c/common.c
+    ./src/c/control.c
     ./src/c/screen.c
+    ./src/c/sprite.c
+    ./src/c/tick.c
+    ./src/c/game_title.c
     ./src/c/game_main.c
     ./src/c/main.c
 )

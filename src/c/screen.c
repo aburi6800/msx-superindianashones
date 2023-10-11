@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <msx/gfx.h>
 #include "common.h"
+#include "game_main.h"
 
 #define BUFF_WIDTH          32
 #define BUFF_HEIGHT         24
@@ -47,7 +48,7 @@ void buff_clear()
 void buff_wrttext(uint8_t x, uint8_t y, char* text)
 {
     for (uint8_t i = 0; i < strlen(text); i++) {
-        PTN_NAME_TBL[y*BUFF_WIDTH+x] = text[i];
+        PTN_NAME_TBL[y * BUFF_WIDTH + x] = text[i];
         x++;
     }
 }
@@ -66,7 +67,7 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text)
  * return:
  * - void
  */
-void buff_wrtbcd(uint8_t x, uint8_t y, char* value)
+void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value)
 {
     wrtbcdtodec(PTN_NAME_TBL, y * BUFF_WIDTH + x, value, sizeof(value));
 }
@@ -82,8 +83,61 @@ void buff_wrtbcd(uint8_t x, uint8_t y, char* value)
  * return:
  * - none
  */
-void write_vram()
+void transfer_ptn_name_tbl()
 {
     // パターンネームテーブル更新
     vwrite(PTN_NAME_TBL, 0x1800, 768);
+}
+
+
+/**
+ * 画面作成処理
+ *
+ * args:
+ * - state          uint8_t     ゲーム状態
+ *
+ * return:
+ * - void
+ */
+void make_screen(uint8_t state)
+{
+    // 仮想画面クリア
+    buff_clear();
+
+    buff_wrttext(0, 0, "faaf                        aafa");
+
+    if (state != TITLE && state != GAME_OVER) {
+        buff_wrttext(4, 0, "babfaaabaaaaafbfaafaaaab");
+    }
+    buff_wrttext(0, 1, "aafd                        ceba");
+    buff_wrttext(0, 2, "bff                          aaf");
+    buff_wrttext(0, 3, "fac                          daf");
+    buff_wrttext(0, 4, "ad                            fa");
+    buff_wrttext(0, 5, "a d                           ca");
+    buff_wrttext(0, 6, "a                            e a");
+    buff_wrttext(0, 7, "d                              e");
+    buff_wrttext(0, 8, " d                            e ");
+    buff_wrttext(0, 9, "b                               ");
+    buff_wrttext(0,10, "f                              b");
+    buff_wrttext(0,11, "bd                            bf");
+    buff_wrttext(0,12, "d                             eb");
+    buff_wrttext(0,13, "                               e");
+    buff_wrttext(0,20, "gggggggggggggggggggggggggggggggg");
+    buff_wrttext(0,22, " SCORE        ROUND      LEFT");
+
+    if (state != TITLE) {
+        buff_wrttext(0,15, "hh");
+        buff_wrttext(0,16, "hhh");
+        buff_wrttext(0,17, "ooh");
+        buff_wrttext(0,18, "  h");
+        buff_wrttext(0,19, "  h");
+    }
+
+    if (state != ALL_CLEAR) {
+        buff_wrttext(29,15, " hh");
+        buff_wrttext(29,16, "hhh");
+        buff_wrttext(29,17, "hoo");
+        buff_wrttext(29,18, "hof");
+        buff_wrttext(29,19, "hfo");
+    }
 }

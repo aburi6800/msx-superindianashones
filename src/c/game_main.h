@@ -1,12 +1,15 @@
 // License:MIT License
 // copyright-holders:Hitoshi Iwai
 
+#ifndef GAME_MAIN_H
+#define GAME_MAIN_H
+
 #include <stdint.h>
 #include <msx.h>
 
 
 // ゲーム状態ENUM
-typedef enum{
+typedef enum {
     TITLE,
     ROUND_START,
     GAME_MAIN,
@@ -15,6 +18,15 @@ typedef enum{
     MISS,
     GAME_OVER
 } state_t;
+
+
+// ゲーム情報
+typedef struct {
+    // スコアデータ
+    unsigned char score[3];
+    // ゲーム状態
+    uint8_t game_state;
+} game_t;
 
 
 /**
@@ -31,20 +43,6 @@ void screen_update();
 
 
 /**
- * tick値加算
- * - tick1は毎フレーム加算する
- * - tick2は60フレームごとに加算する（＝秒カウント）
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-void count_tick();
-
-
-/**
  * ゲーム状態変更
  * - state_tで定義したゲーム状態を渡すことで状態を変更し、サブステータスをリセットする
  * - 状態変更後、経過時間をゼロにリセットする
@@ -55,22 +53,7 @@ void count_tick();
  * return:
  * - void
 */
-void change_state(state_t distState);
-
-
-/**
- * スプライトアトリビュート更新
- * - スプライトアトリビュートを更新する
- *
- * args:
- * - uint8_t        chr_idx     対象のキャラクタデータインデックス
- * - uint8_t        attr_idx    対象のアトリビュートデータインデックス
- * - bool           isPlayer    プレイヤーの場合はtrue
- *
- * return:
- * - void
- */
-void update_sprite_attr(uint8_t attr_idx, uint8_t chr_idx, bool isPlayer);
+void change_game_state(state_t distState);
 
 
 /**
@@ -86,42 +69,6 @@ void game_init();
 
 
 /**
- * 画面作成処理
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-void make_screen();
-
-
-/**
- * ドアアニメーション処理
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-void door_anim();
-
-
-/**
- * タイトル画面
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-void title();
-
-
-/**
  * ゲームループ
  *
  * args:
@@ -132,4 +79,4 @@ void title();
  */
 void game_loop();
 
-
+#endif
