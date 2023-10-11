@@ -5,7 +5,7 @@
   },
   "files.associations": {
     "*.asm": "asm-collection",
-    "stdint.h": "c"
+    "*.h": "c",
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
