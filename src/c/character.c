@@ -12,6 +12,9 @@ character_t characters[8];
 // スプライトアトリビュートテーブル
 uint8_t SPR_ATTR_TBL[32][4] = {0};
 
+// キャラクタインデックス
+uint8_t chr_idx = 0;
+
 
 /**
  * スプライトアトリビュート更新

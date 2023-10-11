@@ -91,7 +91,10 @@ void screen_update()
 void change_game_state(state_t distState)
 {
     // ゲーム状態を変更
-    game.game_state = distState;
+    game.state = distState;
+
+    // ゲームサブ状態をリセット
+    game.substate = 0;
 
     // 経過時間リセット
     reset_tick();
@@ -111,7 +114,7 @@ void game_loop()
 {
     // 画面更新済（ロジック処理可）なら処理する
     if (isUpdated) {
-        switch (game.game_state) {
+        switch (game.state) {
             case TITLE:
                 game_title();
             default:

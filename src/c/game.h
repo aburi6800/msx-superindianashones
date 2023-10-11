@@ -29,7 +29,9 @@ typedef struct {
     // 残機
     unsigned char left[1];
     // ゲーム状態
-    state_t game_state;
+    state_t state;
+    // サブゲーム状態
+    uint8_t substate;
 } game_t;
 
 

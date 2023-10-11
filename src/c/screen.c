@@ -146,11 +146,11 @@ void make_screen()
     buff_wrttext(0,20, "gggggggggggggggggggggggggggggggg");
     buff_wrttext(0,22, " SCORE        ROUND      LEFT");
 
-    if (game.game_state != TITLE && game.game_state != GAME_OVER) {
+    if (game.state != TITLE && game.state != GAME_OVER) {
         buff_wrttext(4, 0, "babfaaabaaaaafbfaafaaaab");
     }
 
-    if (game.game_state != TITLE) {
+    if (game.state != TITLE) {
         buff_wrttext(0,15, "hh");
         buff_wrttext(0,16, "hhh");
         buff_wrttext(0,17, "ooh");
@@ -158,7 +158,7 @@ void make_screen()
         buff_wrttext(0,19, "  h");
     }
 
-    if (game.game_state != ALL_CLEAR) {
+    if (game.state != ALL_CLEAR) {
         buff_wrttext(29,15, " hh");
         buff_wrttext(29,16, "hhh");
         buff_wrttext(29,17, "hoo");
