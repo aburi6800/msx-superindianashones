@@ -4,10 +4,6 @@
 #ifndef GAME_TITLE_H
 #define GAME_TITLE_H
 
-#include "character.h"
-#include "tick.h"
-#include "game_main.h"
-
 
 /**
  * タイトル画面

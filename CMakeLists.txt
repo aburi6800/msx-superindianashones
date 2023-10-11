@@ -17,10 +17,11 @@ add_source_files(
     ./src/c/common.c
     ./src/c/control.c
     ./src/c/screen.c
-    ./src/c/sprite.c
     ./src/c/tick.c
+    ./src/c/game_init.c
     ./src/c/game_title.c
     ./src/c/game_main.c
+    ./src/c/game.c
     ./src/c/main.c
 )
 

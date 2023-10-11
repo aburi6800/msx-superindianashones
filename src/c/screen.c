@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <msx/gfx.h>
 #include "common.h"
-#include "game_main.h"
+#include "game.h"
 
 #define BUFF_WIDTH          32
 #define BUFF_HEIGHT         24
@@ -70,14 +70,14 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text)
  * return:
  * - void
  */
-void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size)
+void wrte_bcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size)
 {
     wrtbcdtodec(PTN_NAME_TBL, (y * BUFF_WIDTH) + x, value, size);
 }
 
 
 /*
- * VRAM転送
+ * VRAM(パターンネームテーブル)更新
  * - 仮想画面バッファをVRAMのパターンネームテーブルへ転送する。
  *
  * args:
@@ -86,7 +86,7 @@ void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size)
  * return:
  * - none
  */
-void transfer_ptn_name_tbl()
+void vwrite_ptn_name_tbl()
 {
     // パターンネームテーブル更新
     vwrite(PTN_NAME_TBL, 0x1800, 768);
@@ -105,11 +105,11 @@ void transfer_ptn_name_tbl()
 void display_information()
 {
     // スコア
-    buff_wrtbcd(6, 22, game.score, 3);
+    wrte_bcd(6, 22, game.score, 3);
     // ラウンド
-    buff_wrtbcd(19, 22, game.round, 1);
+    wrte_bcd(19, 22, game.round, 1);
     // 残機
-    buff_wrtbcd(29, 22, game.left, 1);
+    wrte_bcd(29, 22, game.left, 1);
 }
 
 

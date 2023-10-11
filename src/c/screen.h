@@ -49,11 +49,11 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text);
  * return:
  * - void
  */
-void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size);
+void write_bcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size);
 
 
 /*
- * VRAM転送
+ * VRAM(パターンネームテーブル)更新
  * - 仮想画面バッファをVRAMのパターンネームテーブルへ転送する。
  *
  * args:
@@ -62,7 +62,7 @@ void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size);
  * return:
  * - none
  */
-void transfer_ptn_name_tbl();
+void vwrite_ptn_name_tbl();
 
 
 /**

@@ -1,7 +1,8 @@
 // License:MIT License
 // copyright-holders:Hitoshi Iwai
 
-#include "game_main.h"
+#include "game_init.h"
+#include "game.h"
 
 
 /**
@@ -18,6 +19,8 @@ void main()
     // ゲーム初期設定
     game_init();
 
-    // ゲームループ
-    game_loop();
+    while(1) {
+        // ゲームループ
+        game_loop();
+    }
 }

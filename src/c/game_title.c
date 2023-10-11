@@ -7,9 +7,8 @@
 #include "character.h"
 #include "control.h"
 #include "tick.h"
-#include "sprite.h"
 #include "screen.h"
-#include "game_main.h"
+#include "game.h"
 #include "game_title.h"
 
 
@@ -71,8 +70,14 @@ void game_title()
 {
     if (game_substate == 0) {
         // ゲーム画面初期化
-//        make_screen(game.game_state);
         make_screen();
+
+        // 各種データ初期化
+        game.score[0] = 0x12;
+        game.score[1] = 0x34;
+        game.score[2] = 0x56;
+        game.round[0] = 0x78;
+        game.left[0] = 0x90;
 
         // タイトルロゴ描画
         char title1[] = {161, 162, 163, 164, 165, 166, 167, 0};

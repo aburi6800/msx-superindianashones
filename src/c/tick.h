@@ -27,4 +27,17 @@ typedef struct {
  */
 void count_tick();
 
+
+/**
+ * tick値リセット
+ * - tick1,2をゼロに初期化する
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void reset_tick();
+
 #endif

@@ -28,3 +28,20 @@ void count_tick()
         tick.tick2++;
     }
 }
+
+
+/**
+ * tick値リセット
+ * - tick1,2をゼロに初期化する
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void reset_tick()
+{
+    tick.tick1 = 0;
+    tick.tick2 = 0;
+}
