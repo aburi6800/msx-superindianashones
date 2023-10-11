@@ -71,7 +71,8 @@ void game_title()
 {
     if (game_substate == 0) {
         // ゲーム画面初期化
-        make_screen(game.game_state);
+//        make_screen(game.game_state);
+        make_screen();
 
         // タイトルロゴ描画
         char title1[] = {161, 162, 163, 164, 165, 166, 167, 0};
@@ -111,8 +112,6 @@ void game_title()
             }
         }
         characters[i].chr_num = 1;
-//        add_bcd(0x0010, game.score, sizeof(game.score));
-        buff_wrtbcd(6 ,22, game.score);
 
         // サブステータスを変更
         game_substate = 1;

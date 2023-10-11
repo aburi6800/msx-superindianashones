@@ -108,7 +108,7 @@ __endasm
  *
  * args:
  * - distaddr       char        書き込み先アドレス
- * - distoffset     uint16_t     書き込み先オフセット値
+ * - distoffset     uint16_t    書き込み先オフセット値
  * - dataaddr       char        表示データアドレス
  * - databytes      uint8_t     表示データバイト数
  *

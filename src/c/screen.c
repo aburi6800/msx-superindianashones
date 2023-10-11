@@ -14,6 +14,8 @@
 // パターンネームテーブル
 uint8_t PTN_NAME_TBL[BUFF_SIZE] = {0};
 
+extern game_t game;
+
 
 /**
  * 仮想画面バッファクリア
@@ -62,14 +64,15 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text)
  * args:
  * - x              uint8_t     出力先のX座標
  * - y              uint8_t     出力先のY座標
- * - value          char*       表示データのアドレス
+ * - value          unsigned char* 表示データのアドレス
+ * - size           uint8_t     表示データのサイズ(byte)
  *
  * return:
  * - void
  */
-void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value)
+void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size)
 {
-    wrtbcdtodec(PTN_NAME_TBL, y * BUFF_WIDTH + x, value, sizeof(value));
+    wrtbcdtodec(PTN_NAME_TBL, (y * BUFF_WIDTH) + x, value, size);
 }
 
 
@@ -91,6 +94,26 @@ void transfer_ptn_name_tbl()
 
 
 /**
+ * 各種情報表示
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void display_information()
+{
+    // スコア
+    buff_wrtbcd(6, 22, game.score, 3);
+    // ラウンド
+    buff_wrtbcd(19, 22, game.round, 1);
+    // 残機
+    buff_wrtbcd(29, 22, game.left, 1);
+}
+
+
+/**
  * 画面作成処理
  *
  * args:
@@ -99,16 +122,14 @@ void transfer_ptn_name_tbl()
  * return:
  * - void
  */
-void make_screen(uint8_t state)
+//void make_screen(uint8_t state)
+void make_screen()
 {
     // 仮想画面クリア
     buff_clear();
 
     buff_wrttext(0, 0, "faaf                        aafa");
 
-    if (state != TITLE && state != GAME_OVER) {
-        buff_wrttext(4, 0, "babfaaabaaaaafbfaafaaaab");
-    }
     buff_wrttext(0, 1, "aafd                        ceba");
     buff_wrttext(0, 2, "bff                          aaf");
     buff_wrttext(0, 3, "fac                          daf");
@@ -125,7 +146,11 @@ void make_screen(uint8_t state)
     buff_wrttext(0,20, "gggggggggggggggggggggggggggggggg");
     buff_wrttext(0,22, " SCORE        ROUND      LEFT");
 
-    if (state != TITLE) {
+    if (game.game_state != TITLE && game.game_state != GAME_OVER) {
+        buff_wrttext(4, 0, "babfaaabaaaaafbfaafaaaab");
+    }
+
+    if (game.game_state != TITLE) {
         buff_wrttext(0,15, "hh");
         buff_wrttext(0,16, "hhh");
         buff_wrttext(0,17, "ooh");
@@ -133,11 +158,14 @@ void make_screen(uint8_t state)
         buff_wrttext(0,19, "  h");
     }
 
-    if (state != ALL_CLEAR) {
+    if (game.game_state != ALL_CLEAR) {
         buff_wrttext(29,15, " hh");
         buff_wrttext(29,16, "hhh");
         buff_wrttext(29,17, "hoo");
         buff_wrttext(29,18, "hof");
         buff_wrttext(29,19, "hfo");
     }
+
+    // 各種数値表示
+    display_information();
 }

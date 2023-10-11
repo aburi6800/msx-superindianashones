@@ -22,10 +22,14 @@ typedef enum {
 
 // ゲーム情報
 typedef struct {
-    // スコアデータ
+    // スコア
     unsigned char score[3];
+    // ラウンド
+    unsigned char round[1];
+    // 残機
+    unsigned char left[1];
     // ゲーム状態
-    uint8_t game_state;
+    state_t game_state;
 } game_t;
 
 

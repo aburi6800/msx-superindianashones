@@ -166,6 +166,11 @@ void game_init()
     buff_clear();
 
     // ゲーム状態初期化
+    game.score[0] = 0x12;
+    game.score[1] = 0x34;
+    game.score[2] = 0x56;
+    game.round[0] = 0x78;
+    game.left[0] = 0x90;
     change_game_state(TITLE);
 }
 

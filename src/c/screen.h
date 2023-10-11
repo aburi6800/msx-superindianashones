@@ -43,12 +43,13 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text);
  * args:
  * - x              uint8_t     出力先のX座標
  * - y              uint8_t     出力先のY座標
- * - value          unsigned char*       表示データのアドレス
+ * - value          unsigned char* 表示データのアドレス
+ * - size           uint8_t     表示データのサイズ(byte)
  *
  * return:
  * - void
  */
-void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value);
+void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size);
 
 
 /*
@@ -65,6 +66,18 @@ void transfer_ptn_name_tbl();
 
 
 /**
+ * 各種情報表示
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void display_information();
+
+
+/**
  * 画面作成処理
  *
  * args:
@@ -73,6 +86,7 @@ void transfer_ptn_name_tbl();
  * return:
  * - void
  */
-void make_screen(uint8_t state);
+//void make_screen(uint8_t state);
+void make_screen();
 
 #endif
