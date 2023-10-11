@@ -14,13 +14,11 @@ uint8_t STRIG_BUFF = 0;
 
 
 /**
- * 入力をバッファに設定
+ * スティック/トリガ入力をバッファに設定
+ * - H.TIMI割り込みから呼ばれる
  *
  * args:
- * - distaddr       char        書き込み先アドレス
- * - distoffset     uint16_t     書き込み先オフセット値
- * - dataaddr       char        表示データアドレス
- * - databytes      uint8_t     表示データバイト数
+ * - none
  *
  * return:
  * - void
@@ -32,11 +30,30 @@ void poling_controls()
     STRIG_BUFF = get_trigger(0) + get_trigger(1);
 }
 
+/**
+ * スティック入力のバッファを取得
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
 uint8_t get_stick_buff()
 {
     return STICK_BUFF;
 }
 
+
+/**
+ * トリガ入力のバッファを取得
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
 uint8_t get_strig_buff()
 {
     return STRIG_BUFF;
