@@ -4,20 +4,9 @@
 #include <stdint.h>
 #include <msx.h>
 #include <msx/gfx.h>
+#include "define.h"
 #include "game.h"
-
-// 定数（インライン展開される）
-#define MSX_H_TIMI          0xfd9f
-
-
-// define_graphic_chars.asm:CHR_PTN_TBLへの参照
-extern uint8_t CHR_PTN_TBL[];
-
-// define_graphic_chars.asm:CHR_COL_TBLへの参照
-extern uint8_t CHR_COL_TBL[];
-
-// define_sprite_chars.asm:SPR_PTN_TBL ラベルの参照
-extern uint8_t SPR_PTN_TBL[];
+#include "game_init.h"
 
 
 /**
@@ -31,6 +20,24 @@ extern uint8_t SPR_PTN_TBL[];
  */
 void game_init()
 {
+    // 画面初期化
+    set_color(15, 1, 1);
+    set_mangled_mode();
+    msx_set_sprite_mode(sprite_large);
+
+    // パターンジェネレータテーブル設定
+    vwrite(CHR_PTN_TBL, VRAM_PTN_GENR_TBL1, VRAM_PTN_GENR_SIZE);
+    vwrite(CHR_PTN_TBL, VRAM_PTN_GENR_TBL2, VRAM_PTN_GENR_SIZE);
+    vwrite(CHR_PTN_TBL, VRAM_PTN_GENR_TBL3, VRAM_PTN_GENR_SIZE);
+
+    // カラーテーブル設定
+    vwrite(CHR_COL_TBL, VRAM_COLOR_TBL1, VRAM_COLOR_SIZE);
+    vwrite(CHR_COL_TBL, VRAM_COLOR_TBL2, VRAM_COLOR_SIZE);
+    vwrite(CHR_COL_TBL, VRAM_COLOR_TBL3, VRAM_COLOR_SIZE);
+
+    // スプライトパターンテーブル設定
+    vwrite(SPR_PTN_TBL, VRAM_SPR_PTN_TBL, 32*19);
+
     // H.TIMIフック設定
     #ifndef __INTELLISENSE__
     __asm
@@ -47,24 +54,6 @@ void game_init()
     EI
     __endasm;
     #endif
-
-    // 画面初期化
-    set_color(15, 1, 1);
-    set_mangled_mode();
-    msx_set_sprite_mode(sprite_large);
-
-    // パターンジェネレータテーブル設定
-    vwrite(CHR_PTN_TBL, 0x0000, 0x0800);
-    vwrite(CHR_PTN_TBL, 0x0800, 0x0800);
-    vwrite(CHR_PTN_TBL, 0x1000, 0x0800);
-
-    // カラーテーブル設定
-    vwrite(CHR_COL_TBL, 0x2000, 0x0800);
-    vwrite(CHR_COL_TBL, 0x2800, 0x0800);
-    vwrite(CHR_COL_TBL, 0x3000, 0x0800);
-
-    // スプライトパターンテーブル設定
-    vwrite(SPR_PTN_TBL, 0x3800, 32*19);
 
     // ゲーム状態初期化
     change_game_state(TITLE);

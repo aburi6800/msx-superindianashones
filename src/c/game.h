@@ -6,6 +6,8 @@
 
 #include <stdint.h>
 #include <msx.h>
+#include "define.h"
+#include "character.h"
 
 
 // ゲーム状態ENUM
@@ -33,6 +35,20 @@ typedef struct {
     // サブゲーム状態
     uint8_t substate;
 } game_t;
+extern game_t game;
+
+
+/**
+ * スプライトアトリビュート更新
+ * - スプライトアトリビュートを更新する
+ *
+ * args:
+ * - character_t    character   対象のキャラクタデータ
+ *
+ * return:
+ * - void
+ */
+void update_sprite_attr(character_t character);
 
 
 /**

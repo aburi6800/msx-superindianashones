@@ -4,23 +4,13 @@
 #include <stdint.h>
 #include <msx.h>
 #include <msx/gfx.h>
-#include "screen.h"
+#include "define.h"
 #include "character.h"
 #include "control.h"
 #include "tick.h"
-#include "game_title.h"
+#include "screen.h"
 #include "game.h"
-
-
-#define VRAM_START          0x1800
-#define VRAM_WIDTH          32
-#define VRAM_HEIGHT         24
-#define CHR_SPACE           0x20
-
-
-// マクロ（インライン展開される）
-#define VPOS(x, y)  (VRAM_START + VRAM_WIDTH * y + x)
-#define POS(x, y)   (VRAM_WIDTH * y + x)
+#include "game_title.h"
 
 
 // 画面更新完了フラグ
@@ -28,6 +18,35 @@ bool isUpdated = false;
 
 // ゲーム情報
 game_t game;
+
+
+/**
+ * スプライトアトリビュート更新
+ * - スプライトアトリビュートを更新する
+ *
+ * args:
+ * - character_t    character   対象のキャラクタデータ
+ *
+ * return:
+ * - void
+ */
+void update_sprite_attr(character_t character)
+{
+    uint8_t ptn = (character.p * 4) + (character.r * 8);
+    uint8_t attr_idx = character.attr_no;
+
+    SPR_ATTR_TBL[attr_idx][0] = character.y;
+    SPR_ATTR_TBL[attr_idx][1] = character.x;
+    SPR_ATTR_TBL[attr_idx][2] = ptn;
+    SPR_ATTR_TBL[attr_idx][3] = character.c[0];
+    if (character.type == PLAYER) {
+        attr_idx++;
+        SPR_ATTR_TBL[attr_idx][0] = character.y;
+        SPR_ATTR_TBL[attr_idx][1] = character.x;
+        SPR_ATTR_TBL[attr_idx][2] = ptn + 4;
+        SPR_ATTR_TBL[attr_idx][3] = character.c[1];
+    }
+}
 
 
 /**
@@ -47,8 +66,8 @@ void screen_update()
         return;
     }
 
-    // 入力バッファ
-    poling_controls();
+    // 入力バッファ取得
+    get_controls();
 
     // 経過時間加算
     count_tick();
@@ -60,10 +79,10 @@ void screen_update()
     #endif
 
     // パターンネームテーブル更新
-    vwrite_ptn_name_tbl();
+    vwrite(PTN_NAME_TBL, VRAM_PTN_NAME_TBL, VRAM_PTN_NAME_SIZE);
 
     // スプライトアトリビュートテーブル更新
-    vwrite_sprite_attr_tbl();
+    vwrite(SPR_ATTR_TBL, VRAM_SPR_ATTR_TBL, VRAM_SPR_ATTR_SIZE);
 
     #ifndef __INTELLISENSE__
     __asm

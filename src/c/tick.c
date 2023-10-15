@@ -3,6 +3,7 @@
 
 #include "tick.h"
 
+
 // ゲーム経過時間
 tick_t tick;
 

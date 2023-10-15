@@ -12,6 +12,7 @@ typedef struct {
     uint16_t tick1;
     uint16_t tick2;
 } tick_t;
+extern tick_t tick;
 
 
 /**

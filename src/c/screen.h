@@ -5,6 +5,12 @@
 #define SCREEN_H
 
 #include <stdint.h>
+#include "define.h"
+#include "game.h"
+
+
+// パターンネームテーブル
+extern uint8_t PTN_NAME_TBL[BUFF_SIZE];
 
 
 /**
@@ -49,20 +55,7 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text);
  * return:
  * - void
  */
-void write_bcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size);
-
-
-/*
- * VRAM(パターンネームテーブル)更新
- * - 仮想画面バッファをVRAMのパターンネームテーブルへ転送する。
- *
- * args:
- * - none
- *
- * return:
- * - none
- */
-void vwrite_ptn_name_tbl();
+void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size);
 
 
 /**

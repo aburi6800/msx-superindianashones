@@ -12,6 +12,10 @@ uint8_t STICK_BUFF = 0;
 // 入力バッファ（トリガ）
 uint8_t STRIG_BUFF = 0;
 
+// 移動量テーブル
+int8_t vector_x[9] = {  0,  0,  1,  1,  1,  0, -1, -1, -1};
+int8_t vector_y[9] = {  0, -1, -1,  0,  1,  1,  1,  0, -1};
+
 
 /**
  * スティック/トリガ入力をバッファに設定
@@ -23,38 +27,9 @@ uint8_t STRIG_BUFF = 0;
  * return:
  * - void
  */
-void poling_controls()
+void get_controls()
 {
     // 入力処理
     STICK_BUFF = get_stick(0) + get_stick(1);
     STRIG_BUFF = get_trigger(0) + get_trigger(1);
-}
-
-/**
- * スティック入力のバッファを取得
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-uint8_t get_stick_buff()
-{
-    return STICK_BUFF;
-}
-
-
-/**
- * トリガ入力のバッファを取得
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-uint8_t get_strig_buff()
-{
-    return STRIG_BUFF;
 }

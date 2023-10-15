@@ -6,8 +6,32 @@
 
 #include <stdint.h>
 
+
+// キャラクターロジックの関数ポインタ宣言
+//typedef void (*character_module)(character_t character);
+
+
+// キャラクタ種類ENUM
+typedef enum {
+    NONE,
+    PLAYER,
+    KNIFE,
+    BAT,
+    SKELTON
+} character_type_t;
+
+
 // キャラクタ属性
 typedef struct {
+    // キャラクタ種類
+    character_type_t type;
+
+    // キャラクタ状態
+    uint8_t f;
+
+    // スプライトアトリビュート番号
+    uint8_t attr_no;
+
     // キャラクタX座標
     uint16_t x;
 
@@ -23,39 +47,13 @@ typedef struct {
     // キャラクタカラー
     uint8_t c[2];
 
-    // キャラクタ状態
-    uint8_t f;
-
-    // キャラクタ番号
-    uint8_t chr_num;
+    // 処理モジュールのポインタ
+//    character_module module;
 } character_t;
+extern character_t characters[8];
 
 
-/**
- * スプライトアトリビュート更新
- * - スプライトアトリビュートを更新する
- *
- * args:
- * - uint8_t        chr_idx     対象のキャラクタデータインデックス
- * - uint8_t        attr_idx    対象のアトリビュートデータインデックス
- * - bool           isPlayer    プレイヤーの場合はtrue
- *
- * return:
- * - void
- */
-//void update_sprite_attr(uint8_t attr_idx, uint8_t chr_idx, bool isPlayer);
-void update_sprite_attr(character_t character, uint8_t attr_idx, bool isPlayer);
-
-
-/*
- * スプライトアトリビュートテーブルをVRAMへ転送
- *
- * args:
- * - none
- *
- * return:
- * - void
- */
-void vwrite_sprite_attr_tbl();
+// スプライトアトリビュートテーブル
+extern uint8_t SPR_ATTR_TBL[32][4];
 
 #endif

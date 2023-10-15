@@ -4,34 +4,13 @@
 #include <stdint.h>
 #include <msx.h>
 #include <msx/gfx.h>
+#include "define.h"
 #include "character.h"
 #include "control.h"
 #include "tick.h"
 #include "screen.h"
 #include "game.h"
 #include "game_title.h"
-
-
-// 定数（ドア制御用）
-#define DOOR_STATE_INIT     0
-#define DOOR_STATE_WAIT     1
-#define DOOR_STATE_MOVE     2
-#define DOOR_STATE_END      3
-#define DOOR_MODE_OPEN      0
-#define DOOR_MODE_CLODE     1
-#define DOOR_LEFT           0
-#define DOOR_RIGHT          30
-#define DOOR_WAIT_VALUE     30
-
-
-// ゲーム情報
-extern game_t game;
-
-// ゲーム経過時間
-extern tick_t tick;
-
-// キャラクタ属性
-extern character_t characters[8];
 
 
 // ドアの座標
@@ -91,29 +70,29 @@ void game_title()
         buff_wrttext( 7,18, "ALL RIGHT RESERVED");
 
         // キャラクターの初期座標設定
-        uint8_t title_init_x[6] = { 16,   5,   8,  21,  26,  27};
-        uint8_t title_init_y[6] = {143,   3,   1,   2,   1,   3};
+        uint8_t eye_init_x[6] = { 16,   5,   8,  21,  26,  27};
+        uint8_t eye_init_y[6] = {143,   3,   1,   2,   1,   3};
         uint8_t i = 0;
         for (i = 0; i < 6; i++) {
-            characters[i].x = title_init_x[i];
-            characters[i].y = title_init_y[i];
+            characters[i].x = eye_init_x[i];
+            characters[i].y = eye_init_y[i];
+            if (i > 0) {
+                // 目の初期設定（スプライトとして扱わないため、他の属性は設定不要）
+                characters[i].f = get_rnd() % 2;
+                if (characters[i].f == 1) {
+                    buff_wrttext(characters[i].x, characters[i].y, "m");
+                }
+            }
         }
+
+        // ショーンズ君の初期設定
+        characters[0].type = PLAYER;
         characters[0].p = 0;
         characters[0].r = 1;
         characters[0].c[0] = 4;
         characters[0].c[1] = 11;
-
-        // スプライトアトリビュートセット
-        update_sprite_attr(characters[0], 0, true);
-
-        // 目の初期設定
-        for (uint8_t i = 1; i < 5; i++) {
-            characters[i].f = get_rnd() % 2;
-            if (characters[i].f == 1) {
-                buff_wrttext(characters[i].x, characters[i].y, "m");
-            }
-        }
-        characters[i].chr_num = 1;
+        characters[0].attr_no = 0;
+        update_sprite_attr(characters[0]);
 
         // サブステータスを変更
         game.substate = 1;
@@ -147,7 +126,7 @@ void game_title()
         }
 
         // 入力判定
-        if (get_strig_buff()) {
+        if (STRIG_BUFF) {
             game.substate = 2;
         }
 
@@ -173,7 +152,7 @@ void game_title()
             if (tick.tick1 % 8 == 0) {
                 characters[0].x = characters[0].x + 4;
                 characters[0].r = characters[0].r ^ 1;
-                update_sprite_attr(characters[0], 0, true);
+                update_sprite_attr(characters[0]);
             }
         }
         return;
@@ -196,7 +175,7 @@ void game_title()
                 characters[0].x = characters[0].x + 4;
                 characters[0].r = characters[0].r ^ 1;
             }
-            update_sprite_attr(characters[0], 0, true);
+            update_sprite_attr(characters[0]);
         }
         return;
     }

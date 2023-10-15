@@ -3,18 +3,14 @@
 
 #include <stdint.h>
 #include <msx/gfx.h>
+#include "define.h"
 #include "common.h"
 #include "game.h"
-
-#define BUFF_WIDTH          32
-#define BUFF_HEIGHT         24
-#define BUFF_SIZE           BUFF_WIDTH * BUFF_HEIGHT
+#include "screen.h"
 
 
 // パターンネームテーブル
-uint8_t PTN_NAME_TBL[BUFF_SIZE] = {0};
-
-extern game_t game;
+uint8_t PTN_NAME_TBL[BUFF_SIZE] = {CHR_SPACE};
 
 
 /**
@@ -29,7 +25,7 @@ extern game_t game;
 void buff_clear()
 {
     for (uint16_t i = 0; i < BUFF_SIZE; i++) {
-        PTN_NAME_TBL[i] = 32;
+        PTN_NAME_TBL[i] = CHR_SPACE;
     }
 }
 
@@ -70,26 +66,9 @@ void buff_wrttext(uint8_t x, uint8_t y, char* text)
  * return:
  * - void
  */
-void wrte_bcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size)
+void buff_wrtbcd(uint8_t x, uint8_t y, unsigned char* value, uint8_t size)
 {
     wrtbcdtodec(PTN_NAME_TBL, (y * BUFF_WIDTH) + x, value, size);
-}
-
-
-/*
- * VRAM(パターンネームテーブル)更新
- * - 仮想画面バッファをVRAMのパターンネームテーブルへ転送する。
- *
- * args:
- * - none
- *
- * return:
- * - none
- */
-void vwrite_ptn_name_tbl()
-{
-    // パターンネームテーブル更新
-    vwrite(PTN_NAME_TBL, 0x1800, 768);
 }
 
 
@@ -105,11 +84,11 @@ void vwrite_ptn_name_tbl()
 void display_information()
 {
     // スコア
-    wrte_bcd(6, 22, game.score, 3);
+    buff_wrtbcd(6, 22, game.score, 3);
     // ラウンド
-    wrte_bcd(19, 22, game.round, 1);
+    buff_wrtbcd(19, 22, game.round, 1);
     // 残機
-    wrte_bcd(29, 22, game.left, 1);
+    buff_wrtbcd(29, 22, game.left, 1);
 }
 
 

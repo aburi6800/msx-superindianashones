@@ -2,13 +2,9 @@
 // copyright-holders:Hitoshi Iwai
 
 #include <stdint.h>
+#include "define.h"
 #include "game.h"
-//#include "player.h"
-//#include "enemy.h"
-
-
-// ゲーム情報
-extern game_t game;
+#include "character_player.h"
 
 
 /*
@@ -31,6 +27,7 @@ void game_main()
 
     if (game.substate == 1) {
         // プレイヤー処理
+        character_player();
 
         // 敵処理
 
