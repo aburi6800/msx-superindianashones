@@ -12,6 +12,9 @@
 // パターンネームテーブル
 uint8_t PTN_NAME_TBL[BUFF_SIZE] = {CHR_SPACE};
 
+// ゲーム情報
+extern game_t game;
+
 
 /**
  * 仮想画面バッファクリア
@@ -96,19 +99,17 @@ void display_information()
  * 画面作成処理
  *
  * args:
- * - state          uint8_t     ゲーム状態
+ * - game_state     uint8_t     ゲーム状態
  *
  * return:
  * - void
  */
-//void make_screen(uint8_t state)
 void make_screen()
 {
     // 仮想画面クリア
     buff_clear();
 
     buff_wrttext(0, 0, "faaf                        aafa");
-
     buff_wrttext(0, 1, "aafd                        ceba");
     buff_wrttext(0, 2, "bff                          aaf");
     buff_wrttext(0, 3, "fac                          daf");
@@ -125,11 +126,11 @@ void make_screen()
     buff_wrttext(0,20, "gggggggggggggggggggggggggggggggg");
     buff_wrttext(0,22, " SCORE        ROUND      LEFT");
 
-    if (game.state != TITLE && game.state != GAME_OVER) {
+    if (game.game_state != GAME_STATE_TITLE && game.game_state != GAME_STATE_OVER) {
         buff_wrttext(4, 0, "babfaaabaaaaafbfaafaaaab");
     }
 
-    if (game.state != TITLE) {
+    if (game.game_state != GAME_STATE_TITLE) {
         buff_wrttext(0,15, "hh");
         buff_wrttext(0,16, "hhh");
         buff_wrttext(0,17, "ooh");
@@ -137,7 +138,7 @@ void make_screen()
         buff_wrttext(0,19, "  h");
     }
 
-    if (game.state != ALL_CLEAR) {
+    if (game.game_state != GAME_STATE_ALLCLEAR) {
         buff_wrttext(29,15, " hh");
         buff_wrttext(29,16, "hhh");
         buff_wrttext(29,17, "hoo");

@@ -12,14 +12,14 @@
 
 // ゲーム状態ENUM
 typedef enum {
-    TITLE,
-    ROUND_START,
-    GAME_MAIN,
-    ROUND_CLEAR,
-    ALL_CLEAR,
-    MISS,
-    GAME_OVER
-} state_t;
+    GAME_STATE_TITLE,
+    GAME_STATE_ROUNDSTART,
+    GAME_STATE_MAIN,
+    GAME_STATE_CLEAR,
+    GAME_STATE_ALLCLEAR,
+    GAME_STATE_MISS,
+    GAME_STATE_OVER
+} game_state_t;
 
 
 // ゲーム情報
@@ -31,11 +31,10 @@ typedef struct {
     // 残機
     unsigned char left[1];
     // ゲーム状態
-    state_t state;
+    game_state_t game_state;
     // サブゲーム状態
     uint8_t substate;
 } game_t;
-extern game_t game;
 
 
 /**
@@ -70,12 +69,12 @@ void screen_update();
  * - 状態変更後、経過時間をゼロにリセットする
  *
  * args:
- * - distState      state_t     変更後のゲーム状態
+ * - distState      game_state_t 変更後のゲーム状態
  *
  * return:
  * - void
 */
-void change_game_state(state_t distState);
+void change_game_state(game_state_t distState);
 
 
 /**

@@ -18,19 +18,10 @@
  */
 void game_main()
 {
-    if (game.substate == 0) {
-        // なんらかの初期処理
+    // プレイヤー処理
+    character_player();
 
-        game.substate = 1;
-        return;
-    }
+    // 敵処理
 
-    if (game.substate == 1) {
-        // プレイヤー処理
-        character_player();
-
-        // 敵処理
-
-        return;
-    }
+    return;
 }

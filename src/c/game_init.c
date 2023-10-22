@@ -56,5 +56,5 @@ void game_init()
     #endif
 
     // ゲーム状態初期化
-    change_game_state(TITLE);
+    change_game_state(GAME_STATE_TITLE);
 }

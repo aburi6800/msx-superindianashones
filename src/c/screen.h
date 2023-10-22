@@ -74,12 +74,12 @@ void display_information();
  * 画面作成処理
  *
  * args:
- * - state          uint8_t     ゲーム状態
+ * - game_state          uint8_t     ゲーム状態
  *
  * return:
  * - void
  */
-//void make_screen(uint8_t state);
+//void make_screen(uint8_t game_state);
 void make_screen();
 
 #endif

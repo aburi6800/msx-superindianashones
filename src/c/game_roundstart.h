@@ -1,12 +1,12 @@
 // License:MIT License
 // copyright-holders:Hitoshi Iwai
 
-#ifndef GAME_MAIN_H
-#define GAME_MAIN_H
+#ifndef GAME_ROUNDSTART_H
+#define GAME_ROUNDSTART_H
 
 
 /*
- * ゲームメイン処理
+ * ゲームラウンドスタート処理
  *
  * args:
  * - none
@@ -14,6 +14,7 @@
  * return:
  * - void
  */
-void game_main();
+void game_roundstart();
+
 
 #endif

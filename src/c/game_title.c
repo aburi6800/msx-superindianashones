@@ -32,6 +32,9 @@ uint8_t door_wait_count = 0;
 // キャラクターインデックス
 extern uint8_t chr_idx;
 
+// ゲーム情報
+extern game_t game;
+
 
 /**
  * タイトル画面
@@ -141,19 +144,24 @@ void game_title()
         return;
     }
 
-    if (game.substate == 3) {
-        if (characters[0].x >= 208) {
+    if (game.substate == 3 || game.substate == 5) {
+        if (characters[0].x >= 208 && game.substate == 3) {
             // 次のstateの準備
             door_mode = DOOR_MODE_OPEN;
             door_state = DOOR_STATE_INIT;
             door_x = DOOR_RIGHT;
             game.substate = 4;
-        } else {
-            if (tick.tick1 % 8 == 0) {
-                characters[0].x = characters[0].x + 4;
-                characters[0].r = characters[0].r ^ 1;
-                update_sprite_attr(characters[0]);
-            }
+            return;
+        }
+        if (characters[0].x >= 240 && game.substate == 5) {
+            characters[0].y = 211;
+            change_game_state(GAME_STATE_ROUNDSTART);
+            return;
+        }
+        if (tick.tick1 % 8 == 0) {
+            characters[0].x = characters[0].x + 4;
+            characters[0].r = characters[0].r ^ 1;
+            update_sprite_attr(characters[0]);
         }
         return;
     }
@@ -162,20 +170,6 @@ void game_title()
         door_anim();
         if (door_state == DOOR_STATE_END) {
             game.substate = 5;
-        }
-        return;
-    }
-
-    if (game.substate == 5) {
-        if (tick.tick1 % 8 == 0) {
-            if (characters[0].x >= 240) {
-                characters[0].y = 211;
-                game.substate = 6;
-            } else {
-                characters[0].x = characters[0].x + 4;
-                characters[0].r = characters[0].r ^ 1;
-            }
-            update_sprite_attr(characters[0]);
         }
         return;
     }

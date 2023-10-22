@@ -11,12 +11,14 @@
 #include "screen.h"
 #include "game.h"
 #include "game_title.h"
+#include "game_roundstart.h"
+#include "game_main.h"
 
 
 // 画面更新完了フラグ
 bool isUpdated = false;
 
-// ゲーム情報
+// ゲーム状態
 game_t game;
 
 
@@ -102,15 +104,15 @@ void screen_update()
  * - 状態変更後、経過時間をゼロにリセットする
  *
  * args:
- * - distState      state_t     変更後のゲーム状態
+ * - distState      game_state_t 変更後のゲーム状態
  *
  * return:
  * - void
 */
-void change_game_state(state_t distState)
+void change_game_state(game_state_t distState)
 {
     // ゲーム状態を変更
-    game.state = distState;
+    game.game_state = distState;
 
     // ゲームサブ状態をリセット
     game.substate = 0;
@@ -133,9 +135,16 @@ void game_loop()
 {
     // 画面更新済（ロジック処理可）なら処理する
     if (isUpdated) {
-        switch (game.state) {
-            case TITLE:
+        switch (game.game_state) {
+            case GAME_STATE_TITLE:
                 game_title();
+                break;
+            case GAME_STATE_ROUNDSTART:
+                game_roundstart();
+                break;
+            case GAME_STATE_MAIN:
+                game_main();
+                break;
             default:
                 break;
         }
