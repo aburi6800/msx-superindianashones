@@ -13,6 +13,19 @@ typedef enum {
     PLAYER_STATUS_MISS
 } player_status_t;
 
+
+/**
+ * プレイヤーキャラクター初期化
+ *
+ * args:
+ * - none
+ *
+ * return:
+ * - void
+ */
+void character_player_init();
+
+
 /**
  * プレイヤーキャラクターロジック
  * - プレイヤー本体はキャラクタ属性0

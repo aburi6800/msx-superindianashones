@@ -6,6 +6,7 @@
 #include <msx/gfx.h>
 #include "define.h"
 #include "character.h"
+#include "character_player.h"
 #include "control.h"
 #include "tick.h"
 #include "screen.h"
@@ -73,29 +74,21 @@ void game_title()
         buff_wrttext( 7,18, "ALL RIGHT RESERVED");
 
         // キャラクターの初期座標設定
-        uint8_t eye_init_x[6] = { 16,   5,   8,  21,  26,  27};
-        uint8_t eye_init_y[6] = {143,   3,   1,   2,   1,   3};
-        uint8_t i = 0;
-        for (i = 0; i < 6; i++) {
-            characters[i].x = eye_init_x[i];
-            characters[i].y = eye_init_y[i];
-            if (i > 0) {
-                // 目の初期設定（スプライトとして扱わないため、他の属性は設定不要）
-                characters[i].f = get_rnd() % 2;
-                if (characters[i].f == 1) {
-                    buff_wrttext(characters[i].x, characters[i].y, "m");
-                }
+        uint8_t eye_init_x[5] = {5,   8,  21,  26,  27};
+        uint8_t eye_init_y[5] = {3,   1,   2,   1,   3};
+        uint8_t i;
+        for (i = 1; i < 6; i++) {
+            characters[i].x = eye_init_x[i - 1];
+            characters[i].y = eye_init_y[i - 1];
+            // 目の初期設定（スプライトとして扱わないため、他の属性は設定不要）
+            characters[i].f = get_rnd() % 2;
+            if (characters[i].f == 1) {
+                buff_wrttext(characters[i].x, characters[i].y, "m");
             }
         }
 
         // ショーンズ君の初期設定
-        characters[0].type = PLAYER;
-        characters[0].p = 0;
-        characters[0].r = 1;
-        characters[0].c[0] = 4;
-        characters[0].c[1] = 11;
-        characters[0].attr_no = 0;
-        update_sprite_attr(characters[0]);
+        character_player_init();
 
         // サブステータスを変更
         game.substate = 1;

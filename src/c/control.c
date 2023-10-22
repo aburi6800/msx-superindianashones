@@ -1,9 +1,11 @@
 // License:MIT License
 // copyright-holders:Hitoshi Iwai
 
+#include <stdio.h>
 #include <stdint.h>
 #include <msx/gfx.h>
 #include "control.h"
+#include "screen.h"
 
 
 // 入力バッファ（方向）
@@ -32,4 +34,8 @@ void get_controls()
     // 入力処理
     STICK_BUFF = get_stick(0) + get_stick(1);
     STRIG_BUFF = get_trigger(0) + get_trigger(1);
+
+    uchar stick_str[2];
+    sprintf(stick_str, "%01u", STICK_BUFF);
+    buff_wrttext(0, 0, stick_str);
 }

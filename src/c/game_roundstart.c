@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "define.h"
 #include "screen.h"
+#include "character_player.h"
 #include "game.h"
 #include "game_roundstart.h"
 
@@ -28,15 +29,7 @@ void game_roundstart()
     make_screen();
 
     // プレイヤーキャラクター初期化
-    characters[0].type = PLAYER;
-    characters[0].x = 15*8;
-    characters[0].y = 143;
-    characters[0].p = 0;
-    characters[0].r = 1;
-    characters[0].c[0] = 4;
-    characters[0].c[1] = 11;
-    characters[0].attr_no = 0;
-    update_sprite_attr(characters[0]);
+    character_player_init();
 
     // ゲーム状態変更
     change_game_state(GAME_STATE_MAIN);

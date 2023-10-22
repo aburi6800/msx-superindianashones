@@ -2,6 +2,7 @@
 // copyright-holders:Hitoshi Iwai
 
 #ifndef DEFINE_H
+#define DEFINE_H
 
 // VRAM操作用定数
 #define VRAM_PTN_GENR_TBL1  0x0000
