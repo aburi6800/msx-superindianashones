@@ -19,6 +19,7 @@ add_source_files(
     ./src/c/control.c
     ./src/c/game_init.c
     ./src/c/game_main.c
+    ./src/c/game_roundstart.c
     ./src/c/game_title.c
     ./src/c/game.c
     ./src/c/screen.c

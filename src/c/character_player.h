@@ -4,11 +4,14 @@
 #ifndef CHARACTER_PLAYER_H
 #define CHARACTER_PLAYER_H
 
-// プレイヤー状態
-#define PLAYER_MOVE         1
-#define PLAYER_JUMP         2
-#define PLAYER_SITEMOVE     3
-
+// プレイヤー状態ENUM
+typedef enum {
+    PLAYER_STATUS_INIT,
+    PLAYER_STATUS_MOVE,
+    PLAYER_STATUS_JUMP,
+    PLAYER_STATUS_SITEMOVE,
+    PLAYER_STATUS_MISS
+} player_status_t;
 
 /**
  * プレイヤーキャラクターロジック
