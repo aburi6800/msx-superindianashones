@@ -15,6 +15,7 @@
 typedef enum {
     NONE,
     PLAYER,
+    SIGHT,
     KNIFE,
     BAT,
     SKELTON

@@ -41,16 +41,27 @@ void character_player_init()
     characters[0].p = 0;
     characters[0].r = 1;
 
+    characters[1].type = SIGHT;
+    characters[1].c[0] = 14;
+    characters[1].attr_no = 2;
+    characters[1].p = 10;
+    characters[1].r = 0;
+
     if (game.game_state == GAME_STATE_TITLE) {
         characters[0].x = 16;
         characters[0].y = 143;
+        characters[1].x = 0;
+        characters[1].y = 192;
     } else {
         characters[0].f = PLAYER_STATUS_MOVE;
-        characters[0].x = 15*8;
+        characters[0].x = 120;
         characters[0].y = 143;
+        characters[1].x = 120;
+        characters[1].y = 80;
     }
 
     update_sprite_attr(characters[0]);
+    update_sprite_attr(characters[1]);
 }
 
 
@@ -67,12 +78,13 @@ void character_player_init()
  */
 void character_player()
 {
-    if (tick.tick1 % 8 != 0) {
-        return;
-    }
 
     // 状態:プレイヤー移動中
     if (characters[0].f == PLAYER_STATUS_MOVE) {
+        if (tick.tick1 % 8 != 0) {
+            return;
+        }
+
         if (STICK_BUFF != 0) {
             characters[0].x += (vector_x[STICK_BUFF] * 4);
             if (STICK_BUFF == 6 || STICK_BUFF == 7 || STICK_BUFF == 8) {
@@ -102,6 +114,10 @@ void character_player()
 
     // 状態:プレイヤージャンプ
     if (characters[0].f == PLAYER_STATUS_JUMP) {
+        if (tick.tick1 % 8 != 0) {
+            return;
+        }
+
         // ジャンプ中処理
         characters[0].x += (vector_x[jump_stick] * 4);
         characters[0].y = characters[0].y + jump_vy[jump_cnt];
@@ -113,8 +129,8 @@ void character_player()
 
     // 状態:サイト移動中
     if (characters[0].f == PLAYER_STATUS_SITEMOVE) {
-        characters[1].x = characters[1].x + vector_x[STICK_BUFF];
-        characters[1].y = characters[1].y + vector_y[STICK_BUFF];
+        characters[1].x += (vector_x[STICK_BUFF] * 2);
+        characters[1].y += (vector_y[STICK_BUFF] * 2);
         if (STRIG_BUFF == 0) {
             characters[0].f = PLAYER_STATUS_MOVE;
             // ナイフオブジェクトの生成
@@ -122,4 +138,5 @@ void character_player()
     }
 
     update_sprite_attr(characters[0]);
+    update_sprite_attr(characters[1]);
 }
