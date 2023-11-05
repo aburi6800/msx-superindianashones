@@ -35,6 +35,7 @@ typedef struct {
     // サブゲーム状態
     uint8_t substate;
 } game_t;
+extern game_t game;
 
 
 /**

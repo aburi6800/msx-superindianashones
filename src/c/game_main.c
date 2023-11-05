@@ -5,6 +5,7 @@
 #include "define.h"
 #include "game.h"
 #include "character_player.h"
+#include "character_knife.h"
 
 
 /*
@@ -18,10 +19,12 @@
  */
 void game_main()
 {
-    // プレイヤー処理
-    character_player();
-
-    // 敵処理
-
+//    for (int i = 0; i++; i<8) {
+//        if (characters[i].update != NULL) {
+//            characters[i].update();
+//        }
+//    }
+    update_character_player();
+    update_character_knife();
     return;
 }

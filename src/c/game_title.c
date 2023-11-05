@@ -88,7 +88,7 @@ void game_title()
         }
 
         // ショーンズ君の初期設定
-        character_player_init();
+        init_character_player();
 
         // サブステータスを変更
         game.substate = 1;

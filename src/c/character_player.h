@@ -23,7 +23,7 @@ typedef enum {
  * return:
  * - void
  */
-void character_player_init();
+void init_character_player();
 
 
 /**
@@ -37,6 +37,6 @@ void character_player_init();
  * return:
  * - void
  */
-void character_player();
+void update_character_player();
 
 #endif

@@ -5,12 +5,9 @@
 #include "control.h"
 #include "character.h"
 #include "character_player.h"
+#include "character_knife.h"
 #include "game.h"
 #include "tick.h"
-
-
-// ゲーム情報
-extern game_t game;
 
 
 // ジャンプカウンタ
@@ -32,20 +29,23 @@ int8_t jump_vy[12] = {-6, -4, -2, -2, -1, 0, 0, 1, 2, 2, 4, 6};
  * return:
  * - void
  */
-void character_player_init()
+void init_character_player()
 {
+    // プレイヤー
     characters[0].type = PLAYER;
     characters[0].c[0] = 4;
     characters[0].c[1] = 11;
     characters[0].attr_no = 0;
     characters[0].p = 0;
     characters[0].r = 1;
-
+    characters[0].update = &update_character_player;
+    // サイト
     characters[1].type = SIGHT;
     characters[1].c[0] = 14;
     characters[1].attr_no = 2;
     characters[1].p = 10;
     characters[1].r = 0;
+    characters[1].update = NULL;
 
     if (game.game_state == GAME_STATE_TITLE) {
         characters[0].x = 16;
@@ -60,6 +60,7 @@ void character_player_init()
         characters[1].y = 80;
     }
 
+    // スプライトアトリビュート更新
     update_sprite_attr(characters[0]);
     update_sprite_attr(characters[1]);
 }
@@ -76,9 +77,8 @@ void character_player_init()
  * return:
  * - void
  */
-void character_player()
+void update_character_player()
 {
-
     // 状態:プレイヤー移動中
     if (characters[0].f == PLAYER_STATUS_MOVE) {
         if (tick.tick1 % 8 != 0) {
@@ -131,12 +131,14 @@ void character_player()
     if (characters[0].f == PLAYER_STATUS_SITEMOVE) {
         characters[1].x += (vector_x[STICK_BUFF] * 2);
         characters[1].y += (vector_y[STICK_BUFF] * 2);
-        if (STRIG_BUFF == 0) {
+        if (STRIG_BUFF == 0 && characters[2].f == 0) {
             characters[0].f = PLAYER_STATUS_MOVE;
-            // ナイフオブジェクトの生成
+            // ナイフの生成
+            generate_knife();
         }
     }
 
+    // スプライトアトリビュート更新
     update_sprite_attr(characters[0]);
     update_sprite_attr(characters[1]);
 }
