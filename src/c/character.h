@@ -33,11 +33,20 @@ typedef struct {
     // スプライトアトリビュート番号
     uint8_t attr_no;
 
-    // キャラクタX座標
-    uint16_t x;
+    // キャラクタ座標は整数部＋小数部1桁の値を10倍して整数として持つ
+    // 実際に表示を行う際は、1/10した値（小数部切捨て）を使用する
 
-    // キャラクタY座標
+    // キャラクタ座標
+    uint16_t x;
     uint16_t y;
+
+    // キャラクタ移動先座標
+    uint16_t target_x;
+    uint16_t target_y;
+
+    // キャラクタ座標移動量
+    uint16_t vx;
+    uint16_t vy;
 
     // キャラクタパターン
     uint8_t p;
@@ -56,5 +65,30 @@ extern character_t characters[8];
 
 // スプライトアトリビュートテーブル
 extern uint8_t SPR_ATTR_TBL[32][4];
+
+
+/**
+ * キャラクタ移動量設定処理
+ * - 予め、x,y,target_x,target_yを設定したcharacter_t型の変数ポインタを与える
+ *
+ * args:
+ * - character      character_t 対象のキャラクタデータ
+ *
+ * return:
+ * - void
+ */
+void set_movevalue(character_t character);
+
+
+/**
+ * キャラクタ移動処理
+ *
+ * args:
+ * - character      character_t 対象のキャラクタデータ
+ *
+ * return:
+ * - void
+ */
+void move_character(character_t character);
 
 #endif
