@@ -12,9 +12,6 @@
 // パターンネームテーブル
 uint8_t PTN_NAME_TBL[BUFF_SIZE] = {CHR_SPACE};
 
-// ゲーム情報
-extern game_t game;
-
 
 /**
  * 仮想画面バッファクリア
