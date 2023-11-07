@@ -76,8 +76,8 @@ void game_title()
         // キャラクターの初期座標設定
         uint8_t eye_init_x[5] = {5,   8,  21,  26,  27};
         uint8_t eye_init_y[5] = {3,   1,   2,   1,   3};
-        uint8_t i;
-        for (i = 1; i < 6; i++) {
+        for (uint8_t i = 1; i < 6; i++) {
+            characters[i].type = 9;
             characters[i].x = eye_init_x[i - 1];
             characters[i].y = eye_init_y[i - 1];
             // 目の初期設定（スプライトとして扱わないため、他の属性は設定不要）

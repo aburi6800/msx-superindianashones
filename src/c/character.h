@@ -5,6 +5,7 @@
 #define CHARACTER_H
 
 #include <stdint.h>
+#include <stdint.h>
 
 
 // キャラクタ種類ENUM
@@ -21,7 +22,7 @@ typedef enum {
 /**
  * キャラクタロジックの関数ポインタ宣言
  */
-typedef void (*update_character)();
+//typedef void (*update_character)();
 
 
 // キャラクタ属性
@@ -36,20 +37,12 @@ typedef struct {
     uint8_t attr_no;
 
     // キャラクタ座標
-    uint16_t x;
-    uint16_t y;
+    uint8_t x;
+    uint8_t y;
 
     // キャラクタ移動先座標
-    uint16_t target_x;
-    uint16_t target_y;
-
-    // キャラクタ座標移動量
-    float vx;
-    float vy;
-
-    // キャラクタ計算用座標
-    float cx;
-    float cy;
+    uint8_t target_x;
+    uint8_t target_y;
 
     // キャラクタ移動スピード
     uint8_t speed;
@@ -61,16 +54,25 @@ typedef struct {
     uint8_t r;
 
     // キャラクタカラー
-    uint8_t c[2];
+    uint8_t color1;
+    uint8_t color2;
+
+    // キャラクタ座標移動量
+    float vx;
+    float vy;
+
+    // キャラクタ計算用座標
+    float cx;
+    float cy;
 
     // 処理モジュールのポインタ
-    update_character update;
+//    update_character update;
 } character_t;
-extern character_t characters[8];
+extern character_t characters[8+1];
 
 
 // スプライトアトリビュートテーブル
-extern uint8_t SPR_ATTR_TBL[32][4];
+extern uint8_t SPR_ATTR_TBL[32+1][4];
 
 
 /**
@@ -78,23 +80,23 @@ extern uint8_t SPR_ATTR_TBL[32][4];
  * - 予め、x,y,target_x,target_yを設定したcharacter_t型の変数ポインタを与える
  *
  * args:
- * - character_t    対象のキャラクタデータ
+ * - character_t    対象のキャラクタデータのポインタ
  *
  * return:
  * - void
  */
-void set_movevalue(character_t character);
+void set_movevalue(character_t *character);
 
 
 /**
  * キャラクタ移動処理
  *
  * args:
- * - character_t    対象のキャラクタデータ
+ * - character_t    対象のキャラクタデータのポインタ
  *
  * return:
  * - uint8_t        0=移動中、1=移動終了
  */
-uint8_t move_character(character_t character);
+uint8_t move_character(character_t *character);
 
 #endif

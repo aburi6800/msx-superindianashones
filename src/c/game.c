@@ -40,13 +40,13 @@ void update_sprite_attr(character_t character)
     SPR_ATTR_TBL[attr_idx][0] = character.y;
     SPR_ATTR_TBL[attr_idx][1] = character.x;
     SPR_ATTR_TBL[attr_idx][2] = ptn;
-    SPR_ATTR_TBL[attr_idx][3] = character.c[0];
+    SPR_ATTR_TBL[attr_idx][3] = character.color1;
     if (character.type == PLAYER) {
         attr_idx++;
         SPR_ATTR_TBL[attr_idx][0] = character.y;
         SPR_ATTR_TBL[attr_idx][1] = character.x;
         SPR_ATTR_TBL[attr_idx][2] = ptn + 4;
-        SPR_ATTR_TBL[attr_idx][3] = character.c[1];
+        SPR_ATTR_TBL[attr_idx][3] = character.color2;
     }
 }
 

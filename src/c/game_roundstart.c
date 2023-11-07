@@ -32,7 +32,7 @@ void game_roundstart()
     // キャラクター初期化
     for (uint8_t i=0; i++; i<8) {
         characters[i].f = 0;
-        characters[i].update = NULL;
+//        characters[i].update = NULL;
     }
 
     // プレイヤーキャラクター初期化

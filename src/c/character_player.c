@@ -33,19 +33,19 @@ void init_character_player()
 {
     // プレイヤー
     characters[0].type = PLAYER;
-    characters[0].c[0] = 4;
-    characters[0].c[1] = 11;
+    characters[0].color1 = 4;
+    characters[0].color2 = 11;
     characters[0].attr_no = 0;
     characters[0].p = 0;
     characters[0].r = 1;
-    characters[0].update = &update_character_player;
+//    characters[0].update = &update_character_player;
     // サイト
     characters[1].type = SIGHT;
-    characters[1].c[0] = 14;
+    characters[1].color1 = 14;
     characters[1].attr_no = 2;
     characters[1].p = 10;
     characters[1].r = 0;
-    characters[1].update = NULL;
+//    characters[1].update = NULL;
 
     if (game.game_state == GAME_STATE_TITLE) {
         characters[0].x = 16;
@@ -131,10 +131,12 @@ void update_character_player()
     if (characters[0].f == PLAYER_STATUS_SITEMOVE) {
         characters[1].x += (vector_x[STICK_BUFF] * 2);
         characters[1].y += (vector_y[STICK_BUFF] * 2);
-        if (STRIG_BUFF == 0 && characters[2].f == 0) {
+        if (STRIG_BUFF == 0) {
+            if (characters[2].f == 0) {
+                // ナイフの生成
+                generate_knife();
+            }
             characters[0].f = PLAYER_STATUS_MOVE;
-            // ナイフの生成
-            generate_knife();
         }
     }
 
