@@ -6,7 +6,7 @@
 #include "define.h"
 #include "character.h"
 
-#define abs(x) ((x) < 0 ? -(x) : (x))
+//#define abs(x) ((x) < 0 ? -(x) : (x))
 
 // キャラクタ属性
 character_t characters[8+1];
