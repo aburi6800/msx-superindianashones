@@ -6,6 +6,7 @@
 #include "define.h"
 #include "character.h"
 
+#define abs(x) ((x) < 0 ? -(x) : (x))
 
 // キャラクタ属性
 character_t characters[8+1];
@@ -29,32 +30,19 @@ uint8_t chr_idx = 0;
  */
 void set_movevalue(character_t *character)
 {
-    // 目標座標と現在の座標の差分をそれぞれ求める
-    float ax = character->target_x - character->x;
-    float ay = character->target_y - character->y;
-
-    // 計算用座標を現在の座標で初期化する
-    character->cx = (float)character->x;
-    character->cy = (float)character->y;
-
-    // ax+ay=0なら、x,yの移動量をそれぞれ1として終了する
-    if (ax + ay == 0) {
-        character->vx = 1;
-        character->vy = 1;
-        return;
-    }
-
-    // 係数を求める
-    float z;
-    if (abs(ax) > abs(ay)) {
-        z = abs(ax);
+    character->dx = abs(character->target_x - character->x);
+    character->dy = abs(character->target_y - character->y);
+    if (character->x < character->target_x) {
+        character->sx = 1;
     } else {
-        z = abs(ay);
+        character->sx = -1;
     }
-
-    // x,yの移動量を求める
-    character->vx = (float)(ax / z);
-    character->vy = (float)(ay / z);
+    if (character->y < character->target_y) {
+        character->sy = 1;
+    } else {
+        character->sy = -1;
+    }
+    character->err = character->dx - character->dy;
 }
 
 
@@ -69,19 +57,22 @@ void set_movevalue(character_t *character)
  */
 uint8_t move_character(character_t *character)
 {
-    // 計算用座標に対して計算
-    character->cx += (character->vx * (float)character->speed);
-    character->cy += (character->vy * (float)character->speed);
-
-    // 表示用座標を設定
-    character->x = (uint8_t)character->cx;
-    character->y = (uint8_t)character->cy;
-
     // 目標座標に到達したか
     if (character->x == character->target_x || character->y == character->target_y) {
         // 目標座標に到達したら移動停止する
         character->f = 0;
+        character->y = 192;
         return 1;
+    }
+
+    int e2 = 2 * character->err;
+    if (e2 > -character->dy) {
+        character->err -= character->dy;
+        character->x += character->sx;
+    }
+    if (e2 < character->dx) {
+        character->err += character->dx;
+        character->y += character->sy;
     }
 
     return 0;

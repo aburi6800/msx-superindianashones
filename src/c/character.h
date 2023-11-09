@@ -5,7 +5,6 @@
 #define CHARACTER_H
 
 #include <stdint.h>
-#include <stdint.h>
 
 
 // キャラクタ種類ENUM
@@ -37,15 +36,23 @@ typedef struct {
     uint8_t attr_no;
 
     // キャラクタ座標
-    uint8_t x;
-    uint8_t y;
+    int x;
+    int y;
 
     // キャラクタ移動先座標
-    uint8_t target_x;
-    uint8_t target_y;
+    int target_x;
+    int target_y;
+
+    int dx;
+    int dy;
+
+    int sx;
+    int sy;
+
+    int err;
 
     // キャラクタ移動スピード
-    uint8_t speed;
+    float speed;
 
     // キャラクタパターン
     uint8_t p;
@@ -56,14 +63,6 @@ typedef struct {
     // キャラクタカラー
     uint8_t color1;
     uint8_t color2;
-
-    // キャラクタ座標移動量
-    float vx;
-    float vy;
-
-    // キャラクタ計算用座標
-    float cx;
-    float cy;
 
     // 処理モジュールのポインタ
 //    update_character update;

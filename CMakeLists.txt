@@ -35,7 +35,6 @@ add_compile_flags(C
     -vn
     -llib3d
     -lm
-    --math16
     -lndos
     -lmsxbios
     --list

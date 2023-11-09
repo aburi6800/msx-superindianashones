@@ -73,9 +73,7 @@ void update_character_knife()
     }
 
     // ナイフ移動
-    if (move_character(&characters[2]) == 1) {
-        characters[2].f = 0;
-        characters[2].y = 192;
+    if (move_character(&characters[2])) {
         // 移動終了時は当たり判定を行う
 
     } else {
