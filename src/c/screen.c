@@ -112,7 +112,7 @@ void scroll_buff()
         }
     }
     for (uint8_t x = 4; x < 28; x++) {
-        if (get_rnd() % 10 == 0) {
+        if (get_rnd() % 20 == 0) {
             // テストでなんか置いてみる
             PTN_NAME_TBL[x + BUFF_WIDTH] = '*';
         } else {

@@ -29,7 +29,7 @@ void game_main()
     update_character_knife();
 
     // 仮想画面スクロール
-    scroll_buff();
+//    scroll_buff();
 
     return;
 }

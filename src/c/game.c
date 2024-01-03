@@ -15,8 +15,11 @@
 #include "game_main.h"
 
 
-// 画面更新完了フラグ
-bool isUpdated = true;
+// 画面更新カウンタ
+uint8_t update_count = 0;
+
+// 処理終了フラグ
+bool isUpdated = false;
 
 // ゲーム状態
 game_t game;
@@ -63,8 +66,13 @@ void update_sprite_attr(character_t character)
  */
 void screen_update()
 {
-    // 画面更新済（ロジック処理未終了）なら抜ける
+    // ロジック処理未終了なら抜ける
     if (isUpdated == false) {
+        return;
+    }
+
+    // 画面更新カウンタ判定
+    if (update_count-- > 0) {
         return;
     }
 
@@ -92,8 +100,12 @@ void screen_update()
     __endasm;
     #endif
 
-    // 画面更新済（ロジック処理可）に設定する
-    isUpdated = true;
+    // ロジック処理未完了に設定する
+    isUpdated = false;
+
+    // 画面更新カウンタ初期化
+    update_count = FRAME_RATE;
+
     return;
 }
 
@@ -119,6 +131,12 @@ void change_game_state(game_state_t distState)
 
     // 経過時間リセット
     reset_tick();
+
+    // ロジック処理未完了に設定する
+    isUpdated = false;
+
+    // 画面更新カウンタ初期化
+    update_count = FRAME_RATE;
 }
 
 
@@ -133,8 +151,12 @@ void change_game_state(game_state_t distState)
  */
 void game_loop()
 {
-    // 画面更新済（ロジック処理可）なら処理する
-    if (isUpdated) {
+    // ロジック処理可なら処理する
+    if (update_count == 0) {
+        return;
+    }
+
+    if (isUpdated == false) {
         switch (game.game_state) {
             case GAME_STATE_TITLE:
                 game_title();
@@ -148,6 +170,6 @@ void game_loop()
             default:
                 break;
         }
-        isUpdated = false;
+        isUpdated = true;
     }
 }

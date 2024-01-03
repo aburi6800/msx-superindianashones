@@ -4,6 +4,9 @@
 #ifndef GAME_H
 #define GAME_H
 
+// フレームレート(1=1/60、2=1/30)
+#define FRAME_RATE      2
+
 #include <stdint.h>
 #include <msx.h>
 #include "define.h"
