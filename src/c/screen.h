@@ -71,6 +71,18 @@ void display_information();
 
 
 /**
+ * 仮想画面逆スクロール処理
+ *
+ * args:
+ * - void
+ *
+ * return:
+ * - void
+ */
+void scroll_buff();
+
+
+/**
  * 画面作成処理
  *
  * args:

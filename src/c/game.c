@@ -16,7 +16,7 @@
 
 
 // 画面更新完了フラグ
-bool isUpdated = false;
+bool isUpdated = true;
 
 // ゲーム状態
 game_t game;
@@ -64,7 +64,7 @@ void update_sprite_attr(character_t character)
 void screen_update()
 {
     // 画面更新済（ロジック処理未終了）なら抜ける
-    if (isUpdated) {
+    if (isUpdated == false) {
         return;
     }
 
@@ -148,8 +148,6 @@ void game_loop()
             default:
                 break;
         }
-
-        // 画面更新完了フラグを画面更新未完了に設定
         isUpdated = false;
     }
 }

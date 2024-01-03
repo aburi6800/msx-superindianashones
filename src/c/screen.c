@@ -93,6 +93,36 @@ void display_information()
 
 
 /**
+ * 仮想画面逆スクロール処理
+ *
+ * args:
+ * - void
+ *
+ * return:
+ * - void
+ */
+void scroll_buff()
+{
+    // とりあえずcで組んでみる
+    // (4,18)から(27,18)のデータを(4,19)から(27,19)までコピーする、終わったら(4,17)から同様の処理を繰り返す
+    // (4,0)から(27,0)までの処理がおわったら、(4,0)から(27,0)を20Hで埋めて終了
+    for (uint8_t y = 19; y > 1; y--) {
+        for (uint8_t x = 4; x < 28; x++) {
+            PTN_NAME_TBL[(y * BUFF_WIDTH) + x] = PTN_NAME_TBL[((y - 1) * BUFF_WIDTH) + x];
+        }
+    }
+    for (uint8_t x = 4; x < 28; x++) {
+        if (get_rnd() % 10 == 0) {
+            // テストでなんか置いてみる
+            PTN_NAME_TBL[x + BUFF_WIDTH] = '*';
+        } else {
+            PTN_NAME_TBL[x + BUFF_WIDTH] = CHR_SPACE;
+        }
+    }
+}
+
+
+/**
  * 画面作成処理
  *
  * args:
