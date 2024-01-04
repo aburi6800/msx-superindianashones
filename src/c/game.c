@@ -66,6 +66,10 @@ void update_sprite_attr(character_t character)
  */
 void screen_update()
 {
+    char v[];
+    v[0] = 0x30 + update_count;
+    vwrite(v, 0x1800, 1);
+
     // ロジック処理未終了なら抜ける
     if (isUpdated == false) {
         return;
