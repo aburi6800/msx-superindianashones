@@ -67,7 +67,7 @@ void update_sprite_attr(character_t character)
 void screen_update()
 {
     char v[];
-    v[0] = 0x30 + update_count;
+    v[0] = 48 + update_count;
     vwrite(v, 0x1800, 1);
 
     // ロジック処理未終了なら抜ける
@@ -76,7 +76,7 @@ void screen_update()
     }
 
     // 画面更新カウンタ判定
-    if (update_count-- > 0) {
+    if (--update_count > 0) {
         return;
     }
 
