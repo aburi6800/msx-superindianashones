@@ -70,13 +70,16 @@ void screen_update()
     v[0] = 48 + update_count;
     vwrite(v, 0x1800, 1);
 
-    // ロジック処理未終了なら抜ける
-    if (isUpdated == false) {
+    // 画面更新カウンタ判定
+    if (--update_count > 0) {
         return;
     }
 
-    // 画面更新カウンタ判定
-    if (--update_count > 0) {
+    // 画面更新カウンタ初期化
+    update_count = FRAME_RATE;
+
+    // ロジック処理未終了なら抜ける
+    if (isUpdated == false) {
         return;
     }
 
@@ -106,9 +109,6 @@ void screen_update()
 
     // ロジック処理未完了に設定する
     isUpdated = false;
-
-    // 画面更新カウンタ初期化
-    update_count = FRAME_RATE;
 
     return;
 }

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "define.h"
 #include "game.h"
+#include "tick.h"
 #include "screen.h"
 #include "character_player.h"
 #include "character_knife.h"
@@ -25,11 +26,13 @@ void game_main()
 //            characters[i].update();
 //        }
 //    }
-    update_character_player();
-    update_character_knife();
-
-    // 仮想画面スクロール
-    scroll_buff();
+    if (tick.tick1 % 2 == 0) {
+        update_character_player();
+        update_character_knife();
+    } else {
+        // 仮想画面スクロール
+        scroll_buff();
+    }
 
     return;
 }
