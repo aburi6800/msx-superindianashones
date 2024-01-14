@@ -74,12 +74,12 @@ void display_information();
  * 仮想画面逆スクロール処理
  *
  * args:
- * - void
+ * - addr               unsigned char*  仮想画面データのポインタ
  *
  * return:
  * - void
  */
-void scroll_buff();
+void scroll_buff(unsigned char* addr);
 
 
 /**

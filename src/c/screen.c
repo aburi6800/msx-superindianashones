@@ -96,29 +96,74 @@ void display_information()
  * 仮想画面逆スクロール処理
  *
  * args:
- * - void
+ * - addr               unsigned char*  仮想画面データのポインタ
  *
  * return:
  * - void
  */
-void scroll_buff()
+void scroll_buff(unsigned char* addr)
 {
-    // とりあえずcで組んでみる
-    // (4,18)から(27,18)のデータを(4,19)から(27,19)までコピーする、終わったら(4,17)から同様の処理を繰り返す
-    // (4,0)から(27,0)までの処理がおわったら、(4,0)から(27,0)を20Hで埋めて終了
-    for (uint8_t y = 19; y > 1; y--) {
-        for (uint8_t x = 4; x < 28; x++) {
-            PTN_NAME_TBL[(y * BUFF_WIDTH) + x] = PTN_NAME_TBL[((y - 1) * BUFF_WIDTH) + x];
-        }
-    }
-    for (uint8_t x = 4; x < 28; x++) {
-        if (get_rnd() % 20 == 0) {
-            // テストでなんか置いてみる
-            PTN_NAME_TBL[x + BUFF_WIDTH] = '*';
-        } else {
-            PTN_NAME_TBL[x + BUFF_WIDTH] = CHR_SPACE;
-        }
-    }
+    #ifndef __INTELLISENSE__
+__asm
+    // リターンアドレスをスキップ
+    LD HL,2
+    ADD HL,SP                   // SP+2を引数取得開始アドレスに設定
+
+    // 第1引数(仮想画面データアドレス)を取得
+    LD E,(HL)
+    INC HL
+    LD D,(HL)
+    PUSH DE                     // 一旦退避
+
+    // 処理開始仮想画面データアドレス設定
+    LD HL,19*BUFF_WIDTH + 27    // スクロール範囲の右下端(27,19)をHLレジスタに設定
+    ADD HL,DE
+
+    LD B,18                     // 外部ループカウンタ 18(行数)
+
+    // 外部ループ処理 開始
+    // 全行に対しての処理を行う
+scroll_buff_L1:
+    PUSH BC                     // 外部ループカウンタをスタックに退避
+    LD B,24                     // 内部ループカウンタ 24(桁数)
+
+    // 内部ループ処理 開始
+    // 1行に対しての処理を行う
+    // ここ、LDDRとかに置き換えたい･･･
+scroll_buff_L2:
+    // 1行上のVRAMアドレスのデータを読む
+    PUSH BC
+    PUSH HL
+    LD BC,BUFF_WIDTH            // HL(現アドレス)から32を減算し1行上のアドレスを設定
+    SBC HL,BC
+    LD A,(HL)                   // 仮想画面データ読み出し
+    POP HL
+    POP BC
+
+    // 現在のVRAMアドレスにデータを書き込む
+    LD (HL),A                   // 仮想画面データ書き込み
+
+    DEC HL                      // 仮想画面のひとつ左のアドレスに移動
+    DJNZ scroll_buff_L2         // B>0の間、scroll_buff_L2ラベルにジャンプ
+    // 内部ループ処理 終了
+
+    LD BC,0x0008                // 前回の処理終了アドレスから余白(左4文字＋右4文字=8文字分)を減算し、処理開始アドレスとする
+    SBC HL,BC
+    POP BC
+    DJNZ scroll_buff_L1         // B>0の間、scroll_buff_L1ラベルにジャンプ
+    // 外部ループ処理 終了
+
+    // 先頭行クリア
+    POP HL                      // 引数(仮想画面先頭アドレス)をスタックから取得
+    LD DE,4 + 32
+    ADD HL,DE                   // 処理開始アドレスを設定
+    LD B,24
+scroll_buff_L3:
+    LD (HL), 0x20               // 仮想画面に空白を設定
+    INC HL
+    DJNZ scroll_buff_L3
+__endasm
+    #endif
 }
 
 
