@@ -6,6 +6,7 @@
 #include <msx/gfx.h>
 #include "define.h"
 #include "game.h"
+#include "sound.h"
 #include "game_init.h"
 
 
@@ -37,6 +38,9 @@ void game_init()
 
     // スプライトパターンテーブル設定
     vwrite(SPR_PTN_TBL, VRAM_SPR_PTN_TBL, 32*19);
+
+    // サウンドドライバ初期化
+    sounddrv_init();
 
     // H.TIMIフック設定
     #ifndef __INTELLISENSE__

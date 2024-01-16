@@ -9,6 +9,7 @@
 #include "control.h"
 #include "tick.h"
 #include "screen.h"
+#include "sound.h"
 #include "game.h"
 #include "game_title.h"
 #include "game_roundstart.h"
@@ -66,6 +67,12 @@ void update_sprite_attr(character_t character)
  */
 void screen_update()
 {
+    // サウンドドライバ処理呼び出し
+    sounddrv_exec();
+
+    // 入力バッファ取得
+    get_controls();
+
     char v[];
     v[0] = 48 + update_count;
     vwrite(v, 0x1800, 1);
@@ -78,16 +85,14 @@ void screen_update()
     // 画面更新カウンタ初期化
     update_count = FRAME_RATE;
 
+    // 経過時間加算
+    count_tick();
+
+
     // ロジック処理未終了なら抜ける
     if (isUpdated == false) {
         return;
     }
-
-    // 入力バッファ取得
-    get_controls();
-
-    // 経過時間加算
-    count_tick();
 
     #ifndef __INTELLISENSE__
     __asm

@@ -13,6 +13,9 @@ include(./cmake/macros.cmake)
 add_source_files(
     ./src/asm/define_graphic_chars.asm
     ./src/asm/define_sprite_chars.asm
+    ./src/asm/define_music.asm
+    ./src/asm/psgdriver.asm
+    ./src/c/sound.c
     ./src/c/character.c
     ./src/c/character_player.c
     ./src/c/character_knife.c

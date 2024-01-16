@@ -5,6 +5,7 @@
 #include <msx.h>
 #include <msx/gfx.h>
 #include "define.h"
+#include "sound.h"
 #include "character.h"
 #include "character_player.h"
 #include "control.h"
@@ -89,6 +90,9 @@ void game_title()
 
         // ショーンズ君の初期設定
         init_character_player();
+
+        // サウンド再生
+        play_music(0);
 
         // サブステータスを変更
         game.substate = 1;
