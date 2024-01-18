@@ -33,14 +33,14 @@ void set_movevalue(character_t *character)
     character->dx = abs(character->target_x - character->x);
     character->dy = abs(character->target_y - character->y);
     if (character->x < character->target_x) {
-        character->sx = 1;
+        character->sx = 1 * character->speed;
     } else {
-        character->sx = -1;
+        character->sx = -1 * character->speed;
     }
     if (character->y < character->target_y) {
-        character->sy = 1;
+        character->sy = 1 * character->speed;
     } else {
-        character->sy = -1;
+        character->sy = -1 * character->speed;
     }
     character->err = character->dx - character->dy;
 }
@@ -58,19 +58,19 @@ void set_movevalue(character_t *character)
 uint8_t move_character(character_t *character)
 {
     // 目標座標に到達したか
-    if (character->x == character->target_x || character->y == character->target_y) {
+    if (abs(character->x - character->target_x) < 4 && abs(character->y - character->target_y) < 4) {
         // 目標座標に到達したら移動停止する
         character->f = 0;
         character->y = 192;
         return 1;
     }
 
-    int e2 = 2 * character->err;
-    if (e2 > -character->dy) {
+    int err2 = 2 * character->err;
+    if (err2 > -character->dy) {
         character->err -= character->dy;
         character->x += character->sx;
     }
-    if (e2 < character->dx) {
+    if (err2 < character->dx) {
         character->err += character->dx;
         character->y += character->sy;
     }

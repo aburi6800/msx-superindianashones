@@ -28,7 +28,7 @@ void init_character_knife()
     characters[2].r = 0;
     characters[2].x = 0;
     characters[2].y = 192;
-    characters[2].speed = 2;
+    characters[2].speed = 4;
 //    characters[2].update = &update_character_knife;
 
     // スプライトアトリビュート更新
